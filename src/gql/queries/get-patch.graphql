@@ -4,6 +4,8 @@ query Patch($id: String!) {
   patch(id: $id) {
     ...basePatch
     childPatches{
+      baseVersionID
+      githash
       project
       patchID
       taskCount

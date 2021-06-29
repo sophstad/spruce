@@ -746,6 +746,8 @@ export type Patch = {
 };
 
 export type ChildPatch = {
+  baseVersionID?: Maybe<Scalars["String"]>;
+  githash: Scalars["String"];
   project: Scalars["String"];
   patchID: Scalars["String"];
   status: Scalars["String"];
@@ -2186,6 +2188,8 @@ export type PatchQuery = {
     canEnqueueToCommitQueue: boolean;
     childPatches?: Maybe<
       Array<{
+        baseVersionID?: Maybe<string>;
+        githash: string;
         project: string;
         patchID: string;
         taskCount?: Maybe<number>;

@@ -12,14 +12,18 @@ export const DownstreamTasks: React.FC<DownstreamTasksProps> = ({
   childPatches,
 }) => (
   <>
-    {childPatches.map(({ project, status, patchID, taskCount }) => (
-      <DownstreamProjectAccordion
-        key={`downstream_project_${patchID}`}
-        projectName={project}
-        status={status}
-        childPatchId={patchID}
-        taskCount={taskCount}
-      />
-    ))}
+    {childPatches.map(
+      ({ baseVersionID, githash, project, status, patchID, taskCount }) => (
+        <DownstreamProjectAccordion
+          key={`downstream_project_${patchID}`}
+          projectName={project}
+          status={status}
+          childPatchId={patchID}
+          taskCount={taskCount}
+          githash={githash}
+          baseVersionID={baseVersionID}
+        />
+      )
+    )}
   </>
 );
