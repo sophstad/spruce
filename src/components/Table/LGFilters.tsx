@@ -13,11 +13,20 @@ export const getColumnTreeSelectFilterProps = ({
   tData,
   title,
 }: TreeSelectFilterProps) => ({
-  header: ({ column }) => {
+  header: ({ column, ...rest }) => {
+    const uniqueValues = column.getFacetedUniqueValues();
+
+    const inTable = ({ value, children }: TreeDataEntry) => {
+      if (uniqueValues.get(value)) return true;
+
+      if (children?.length) return children.some(inTable);
+
+      return false;
+    };
+
     // Only present options that appear in the table
-    const options = tData.filter(
-      ({ value }) => !!column.getFacetedUniqueValues().get(value)
-    );
+    const options = tData.filter(inTable);
+
     return (
       <>
         {title}
@@ -37,10 +46,13 @@ export const getColumnTreeSelectFilterProps = ({
     columnId: string,
     filterValue: string[]
   ) => {
+    console.log("HELLOOOO");
+    console.log(filterValue);
     // If no filter is specified, show all rows
     if (!filterValue.length) {
       return true;
     }
+    console.log(filterValue, row.getValue(columnId));
     return filterValue.includes(row.getValue(columnId));
   },
 });

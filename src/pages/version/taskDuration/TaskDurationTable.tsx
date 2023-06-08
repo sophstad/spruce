@@ -1,13 +1,30 @@
+import { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { palette } from "@leafygreen-ui/palette";
 import { Table, TableHeader } from "@leafygreen-ui/table";
+import { useLeafyGreenTable } from "@leafygreen-ui/table/new";
+import {
+  getFacetedMinMaxValues,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+} from "@tanstack/react-table";
 import { useParams } from "react-router-dom";
 import { useVersionAnalytics } from "analytics";
+import { BaseTable } from "components/Table/BaseTable";
+import { getColumnTreeSelectFilterProps } from "components/Table/LGFilters";
 import { TablePlaceholder } from "components/Table/TablePlaceholder";
 import {
   TableFilterPopover,
   TableSearchPopover,
 } from "components/TablePopover";
+import { TaskLink } from "components/TasksTable/TaskLink";
+import TaskStatusBadge from "components/TaskStatusBadge";
+import {
+  mapTaskToBarchartColor,
+  mapTaskStatusToUmbrellaStatus,
+  taskStatusesFilterTreeData,
+} from "constants/task";
+import { size } from "constants/tokens";
 import { VersionTaskDurationsQuery } from "gql/generated/types";
 import {
   useTaskStatuses,
@@ -15,13 +32,18 @@ import {
   useFilterInputChangeHandler,
 } from "hooks";
 import { useUpdateURLQueryParams } from "hooks/useUpdateURLQueryParams";
-import { PatchTasksQueryParams } from "types/task";
+import { PatchTasksQueryParams, TaskStatus } from "types/task";
+import { Unpacked } from "types/utils";
+import { string } from "utils";
 import { TaskDurationRow } from "./TaskDurationRow";
 
 const { gray } = palette;
+const { msToDuration } = string;
+
+type Tasks = VersionTaskDurationsQuery["version"]["tasks"]["data"];
 
 interface Props {
-  tasks: VersionTaskDurationsQuery["version"]["tasks"]["data"];
+  tasks: Tasks;
   loading: boolean;
 }
 
@@ -62,9 +84,34 @@ export const TaskDurationTable: React.VFC<Props> = ({ tasks, loading }) => {
 
   const maxTimeTaken = findMaxTimeTaken(tasks);
 
+  const [columnFilters, setColumnFilters] = useState([]);
+  console.log(columnFilters);
+
+  const filters = (args) => {
+    console.log("ok");
+    setColumnFilters(args);
+  };
+
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const table = useLeafyGreenTable<Unpacked<Tasks>>({
+    columns,
+    containerRef: tableContainerRef,
+    data: tasks ?? [],
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSubRows: (originalRow) => originalRow.executionTasksFull,
+    onColumnFiltersChange: filters,
+    state: {
+      columnFilters,
+    },
+    withPagination: true,
+  });
+
   return (
     <TableWrapper>
-      <Table
+      <BaseTable table={table} shouldAlternateRowColor />
+      {/* <Table
         data={tasks}
         columns={[
           <StyledTableHeader
@@ -123,7 +170,7 @@ export const TaskDurationTable: React.VFC<Props> = ({ tasks, loading }) => {
             maxTimeTaken={maxTimeTaken}
           />
         )}
-      </Table>
+      </Table> */}
       {loading && (
         <TablePlaceholder glyph="Refresh" message="Loading..." spin />
       )}
@@ -164,4 +211,77 @@ const StyledTableHeader = styled(TableHeader)`
 const TableHeaderLabel = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const columns = [
+  {
+    accessorKey: "displayName",
+    cell: ({
+      getValue,
+      row: {
+        original: { id },
+      },
+    }) => {
+      const displayName = getValue();
+      return <TaskLink taskId={id} taskName={displayName} />;
+    },
+    header: "Task Name",
+  },
+  {
+    accessorKey: "status",
+    cell: ({ getValue }) => {
+      const status = getValue();
+      return <TaskStatusBadge status={status} />;
+    },
+    ...getColumnTreeSelectFilterProps({
+      "data-cy": "status-filter-popover",
+      tData: taskStatusesFilterTreeData,
+      title: "Task Status",
+    }),
+  },
+  {
+    accessorKey: "buildVariantDisplayName",
+    header: "Build Variant",
+  },
+  {
+    accessorKey: "timeTaken",
+    cell: ({
+      column,
+      getValue,
+      row: {
+        original: { status, ...original },
+      },
+    }) => {
+      const timeTaken = getValue();
+      const maxTimeTaken = column.getFacetedMinMaxValues();
+      const barWidth = calculateBarWidth(timeTaken, maxTimeTaken);
+      const barColor =
+        mapTaskToBarchartColor[mapTaskStatusToUmbrellaStatus[status]];
+      const startedWithZeroTime =
+        original?.startTime === null && status === TaskStatus.Started;
+      return startedWithZeroTime ? (
+        <span>
+          There is no task duration information for this task at this time.
+        </span>
+      ) : (
+        <>
+          <DurationBar width={barWidth} color={barColor} />
+          <span>{msToDuration(timeTaken)}</span>
+        </>
+      );
+    },
+    header: "Task Duration",
+  },
+];
+
+const calculateBarWidth = (value: number, max: number) =>
+  max ? `${(value / max) * 100}%` : "0%";
+
+const barHeight = "12px";
+
+const DurationBar = styled.div<{ width: string; color: string }>`
+  width: ${({ width }) => width};
+  background-color: ${({ color }) => color};
+  border-radius: ${size.m};
+  height: ${barHeight};
 `;

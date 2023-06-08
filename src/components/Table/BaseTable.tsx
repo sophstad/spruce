@@ -44,6 +44,16 @@ export const BaseTable = <T extends LGRowData>({
             </Cell>
           ))}
           {row.original.renderExpandedContent && <ExpandedContent row={row} />}
+          {row.subRows &&
+            row.subRows.map((subRow) => (
+              <Row key={subRow.id} row={subRow}>
+                {subRow.getVisibleCells().map((cell) => (
+                  <Cell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </Cell>
+                ))}
+              </Row>
+            ))}
         </Row>
       ))}
     </TableBody>
