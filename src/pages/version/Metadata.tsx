@@ -1,4 +1,4 @@
-import { InlineCode } from "@leafygreen-ui/typography";
+import { InlineCode, Disclaimer } from "@leafygreen-ui/typography";
 import { Link } from "react-router-dom";
 import { useVersionAnalytics } from "analytics";
 import {
@@ -33,23 +33,24 @@ export const Metadata: React.VFC<Props> = ({ loading, version }) => {
   const getDateCopy = useDateFormat();
   const {
     author,
-    revision,
-    project,
-    versionTiming,
-    createTime,
-    startTime,
-    finishTime,
-    patch,
-    projectIdentifier,
     baseVersion,
-    isPatch,
-    parameters,
-    manifest,
-    id,
-    previousVersion,
-    upstreamProject,
-    projectMetadata,
+    createTime,
     externalLinksForMetadata,
+    finishTime,
+    gitTags,
+    id,
+    isPatch,
+    manifest,
+    parameters,
+    patch,
+    previousVersion,
+    project,
+    projectIdentifier,
+    projectMetadata,
+    revision,
+    startTime,
+    upstreamProject,
+    versionTiming,
   } = version || {};
   const { sendEvent } = useVersionAnalytics(id);
   const { commitQueuePosition } = patch || {};
@@ -179,11 +180,20 @@ export const Metadata: React.VFC<Props> = ({ loading, version }) => {
         </MetadataItem>
       )}
       <ParametersModal parameters={parameters} />
-      {url && displayName && isPatch && (
+      {url && displayName && (
         <MetadataItem>
           <StyledLink data-cy="external-link" href={url}>
             {displayName}
           </StyledLink>
+        </MetadataItem>
+      )}
+      {gitTags && (
+        <MetadataItem>
+          {gitTags.map((g) => (
+            <Disclaimer key={g.tag}>
+              Tag {g.tag} pushed by {g.pusher}
+            </Disclaimer>
+          ))}
         </MetadataItem>
       )}
     </MetadataCard>

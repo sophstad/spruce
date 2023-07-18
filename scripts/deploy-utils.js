@@ -1,29 +1,109 @@
-/* eslint-disable no-console */
-const colors = require("colors/safe");
-const { execSync } = require("child_process");
+const { exec } = require("child_process");
 
-const getLatestReleaseTag = () =>
-  execSync("git describe --tags `git rev-list --tags --max-count=1`", {
-    encoding: "utf-8",
-  }).trim();
+const githubRemote = "https://github.com/evergreen-ci/spruce";
+const localDeployScript =
+  "yarn build:prod && env-cmd -e production yarn deploy:do-not-use && env-cmd -e production ./scripts/email.sh";
 
-// Fetches all the commits since the last release tag if there are no commits
-// since the last release it returns false otherwise prints out all the commits
-const getLatestCommitsSinceLastRelease = async () => {
-  try {
-    const latestRelease = getLatestReleaseTag();
-    const latestCommits = execSync(`git log --oneline ${latestRelease}..HEAD`, {
-      encoding: "utf-8",
+const createNewTag = () =>
+  new Promise((resolve, reject) => {
+    exec("yarn version --new-version patch", (err, stdout) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(stdout);
     });
+  });
 
-    return latestCommits;
-  } catch (e) {
-    console.log(
-      colors.bgRed(
-        `Error occured when trying to parse commits.\nThere is likely something wrong with your commit history:\n ${e}`
-      )
+const getCommitMessages = () =>
+  new Promise((resolve, reject) => {
+    exec(
+      "git log $(git describe --tags --abbrev=0)..HEAD --oneline",
+      (err, stdout) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(stdout);
+      }
     );
-  }
+  });
+
+const getLatestTag = () =>
+  new Promise((resolve, reject) => {
+    exec("git describe --tags --abbrev=0", (err, stdout) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(stdout);
+    });
+  });
+
+const deleteTag = (tag) => {
+  const deleteCommand = `git push --delete ${githubRemote} ${tag}`;
+  return new Promise((resolve, reject) => {
+    exec(deleteCommand, (err, stdout) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(stdout);
+    });
+  });
 };
 
-module.exports = { getLatestReleaseTag, getLatestCommitsSinceLastRelease };
+const pushTags = () =>
+  new Promise((resolve, reject) => {
+    exec(`git push --tags ${githubRemote}`, (err, stdout) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(stdout);
+    });
+  });
+
+const runLocalDeploy = () =>
+  new Promise((resolve, reject) => {
+    exec(localDeployScript, (err, stdout) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(stdout);
+    });
+  });
+
+const isOnMainBranch = () =>
+  new Promise((resolve, reject) => {
+    exec("git branch --show-current", (err, stdout) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(stdout.trim() === "main");
+    });
+  });
+
+const isWorkingDirectoryClean = () =>
+  new Promise((resolve, reject) => {
+    exec("git status --porcelain", (err, stdout) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(stdout.trim() === "");
+    });
+  });
+
+module.exports = {
+  createNewTag,
+  deleteTag,
+  getCommitMessages,
+  getLatestTag,
+  isOnMainBranch,
+  isWorkingDirectoryClean,
+  pushTags,
+  runLocalDeploy,
+};

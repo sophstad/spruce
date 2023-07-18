@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
 import { palette } from "@leafygreen-ui/palette";
-import { Body } from "@leafygreen-ui/typography";
+import { Body, InlineCode } from "@leafygreen-ui/typography";
+import { Link } from "react-router-dom";
 import ExpandedText from "components/ExpandedText";
 import { StyledRouterLink } from "components/styles";
 import { getVersionRoute, getTaskRoute } from "constants/routes";
 import { size, zIndex } from "constants/tokens";
-import { UpstreamProjectFragment } from "gql/generated/types";
+import { UpstreamProjectFragment, GitTag } from "gql/generated/types";
 import { useSpruceConfig, useDateFormat } from "hooks";
 import { ProjectTriggerLevel } from "types/triggers";
 import { shortenGithash } from "utils/string";
@@ -15,6 +16,7 @@ const { gray } = palette;
 const MAX_CHAR = 40;
 interface Props {
   githash: string;
+  gitTags: GitTag[];
   createTime: Date;
   author: string;
   message: string;
@@ -27,6 +29,7 @@ interface Props {
 
 const CommitChartLabel: React.VFC<Props> = ({
   githash,
+  gitTags,
   createTime,
   author,
   message,
@@ -48,19 +51,21 @@ const CommitChartLabel: React.VFC<Props> = ({
     task: upstreamTask,
     version: upstreamVersion,
   } = upstreamProject || {};
+
   return (
     <LabelContainer data-cy="commit-label">
       <LabelText>
-        <StyledRouterLink
-          data-cy="githash-link"
+        <InlineCode
+          as={Link}
           onClick={onClickGithash}
           to={getVersionRoute(versionId)}
+          data-cy="githash-link"
         >
           {shortenGithash(githash)}
-        </StyledRouterLink>{" "}
+        </InlineCode>{" "}
         <b>
           {getDateCopy(createDate, { omitSeconds: true, omitTimezone: true })}
-        </b>
+        </b>{" "}
       </LabelText>
       {upstreamProject && (
         <LabelText>
@@ -91,6 +96,9 @@ const CommitChartLabel: React.VFC<Props> = ({
           message={message}
           data-cy="long-commit-message-tooltip"
         />
+      )}
+      {gitTags && (
+        <LabelText>Git Tags: {gitTags.map((g) => g.tag).join(", ")}</LabelText>
       )}
     </LabelContainer>
   );

@@ -2,6 +2,8 @@ import React from "react";
 import { MockedProvider } from "@apollo/client/testing";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { Parameters, Decorator } from "@storybook/react";
+// This is required for storyshots https://github.com/lifeiscontent/storybook-addon-apollo-client/issues/16
+import { WithApolloClient } from "storybook-addon-apollo-client/dist/decorators";
 import { GlobalStyles } from "../src/components/styles/GlobalStyles";
 
 export const parameters: Parameters = {
@@ -32,17 +34,22 @@ export const decorators: Decorator[] = [
       <Story />
     </>
   ),
-  (Story: () => JSX.Element) => {
+  (Story: () => JSX.Element, context) => {
+    const { parameters: storyParameters } = context;
+    const { reactRouter } = storyParameters;
+    const { path, params, route } = reactRouter || {};
     const routes = [
       {
-        path: "/",
+        path: path || "/",
+        parameters: params || {},
         element: <Story />,
         errorElement: <div>Failed to render component.</div>,
       },
     ];
     const memoryRouter = createMemoryRouter(routes, {
-      initialEntries: ["/"],
+      initialEntries: [route || "/"],
     });
     return <RouterProvider router={memoryRouter} />;
   },
+  WithApolloClient,
 ];

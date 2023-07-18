@@ -3,6 +3,7 @@ import {
   ProjectHealthView,
   ProjectSettingsQuery,
   RepoSettingsQuery,
+  MergeQueue,
 } from "gql/generated/types";
 
 const projectBase: ProjectSettingsQuery["projectSettings"] = {
@@ -10,6 +11,7 @@ const projectBase: ProjectSettingsQuery["projectSettings"] = {
   projectRef: {
     externalLinks: [
       {
+        requesters: ["gitter_request", "patch_request"],
         displayName: "a link display name",
         urlTemplate: "https:/a-link-template-{version_id}.com",
       },
@@ -60,6 +62,7 @@ const projectBase: ProjectSettingsQuery["projectSettings"] = {
     commitQueue: {
       enabled: null,
       mergeMethod: "",
+      mergeQueue: MergeQueue.Evergreen,
       message: "",
     },
     perfEnabled: true,
@@ -109,6 +112,7 @@ const projectBase: ProjectSettingsQuery["projectSettings"] = {
     {
       id: "1",
       alias: "__github",
+      description: "",
       gitTag: "",
       variant: ".*",
       task: ".*",
@@ -119,6 +123,7 @@ const projectBase: ProjectSettingsQuery["projectSettings"] = {
     {
       id: "3",
       alias: "__commit_queue",
+      description: "",
       gitTag: "",
       variant: "^ubuntu1604$",
       task: "^lint$",
@@ -129,6 +134,7 @@ const projectBase: ProjectSettingsQuery["projectSettings"] = {
     {
       id: "5",
       alias: "__git_tag",
+      description: "",
       gitTag: "tagName",
       variant: "",
       task: "",
@@ -144,6 +150,7 @@ const repoBase: RepoSettingsQuery["repoSettings"] = {
   projectRef: {
     externalLinks: [
       {
+        requesters: ["gitter_request", "patch_request"],
         displayName: "a link display name",
         urlTemplate: "https:/a-link-template-{version_id}.com",
       },
@@ -179,6 +186,7 @@ const repoBase: RepoSettingsQuery["repoSettings"] = {
     commitQueue: {
       enabled: true,
       mergeMethod: "squash",
+      mergeQueue: MergeQueue.Github,
       message: "Commit Queue Message",
     },
     perfEnabled: true,
@@ -264,6 +272,7 @@ const repoBase: RepoSettingsQuery["repoSettings"] = {
     {
       id: "2",
       alias: "__github_checks",
+      description: "",
       gitTag: "",
       variant: "",
       task: "",
@@ -274,6 +283,7 @@ const repoBase: RepoSettingsQuery["repoSettings"] = {
     {
       id: "4",
       alias: "my alias name",
+      description: "my description",
       gitTag: "",
       variant: "",
       task: "",

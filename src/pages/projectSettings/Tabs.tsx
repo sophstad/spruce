@@ -3,7 +3,6 @@ import styled from "@emotion/styled";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { ProjectSettingsTabRoutes } from "constants/routes";
 import { ProjectSettingsQuery, RepoSettingsQuery } from "gql/generated/types";
-import { isProduction } from "utils/environmentVariables";
 import { useProjectSettingsContext } from "./Context";
 import { Header } from "./Header";
 import { NavigationModal } from "./NavigationModal";
@@ -180,35 +179,31 @@ export const ProjectSettingsTabs: React.VFC<Props> = ({
             />
           }
         />
-        {!isProduction() && (
-          <Route
-            path={ProjectSettingsTabRoutes.Containers}
-            element={
-              <ContainersTab
-                identifier={identifier || repoId}
-                projectData={
-                  tabData[ProjectSettingsTabRoutes.Containers].projectData
-                }
-                projectType={projectType}
-                repoData={tabData[ProjectSettingsTabRoutes.Containers].repoData}
-              />
-            }
-          />
-        )}
-        {!isProduction() && (
-          <Route
-            path={ProjectSettingsTabRoutes.ViewsAndFilters}
-            element={
-              <ViewsAndFiltersTab
-                identifier={identifier}
-                projectData={
-                  tabData[ProjectSettingsTabRoutes.ViewsAndFilters].projectData
-                }
-                projectType={projectType}
-              />
-            }
-          />
-        )}
+        <Route
+          path={ProjectSettingsTabRoutes.Containers}
+          element={
+            <ContainersTab
+              identifier={identifier || repoId}
+              projectData={
+                tabData[ProjectSettingsTabRoutes.Containers].projectData
+              }
+              projectType={projectType}
+              repoData={tabData[ProjectSettingsTabRoutes.Containers].repoData}
+            />
+          }
+        />
+        <Route
+          path={ProjectSettingsTabRoutes.ViewsAndFilters}
+          element={
+            <ViewsAndFiltersTab
+              identifier={identifier}
+              projectData={
+                tabData[ProjectSettingsTabRoutes.ViewsAndFilters].projectData
+              }
+              projectType={projectType}
+            />
+          }
+        />
         <Route
           path={ProjectSettingsTabRoutes.ProjectTriggers}
           element={

@@ -67,6 +67,21 @@ export enum BannerTheme {
   Warning = "WARNING",
 }
 
+export type BootstrapSettings = {
+  __typename?: "BootstrapSettings";
+  clientDir?: Maybe<Scalars["String"]>;
+  communication?: Maybe<Scalars["String"]>;
+  env: Array<EnvVar>;
+  jasperBinaryDir?: Maybe<Scalars["String"]>;
+  jasperCredentialsPath?: Maybe<Scalars["String"]>;
+  method?: Maybe<Scalars["String"]>;
+  preconditionScripts: Array<PreconditionScript>;
+  resourceLimits?: Maybe<ResourceLimits>;
+  rootDir?: Maybe<Scalars["String"]>;
+  serviceUser?: Maybe<Scalars["String"]>;
+  shellPath?: Maybe<Scalars["String"]>;
+};
+
 export type Build = {
   __typename?: "Build";
   actualMakespan: Scalars["Duration"];
@@ -182,12 +197,14 @@ export type CommitQueueParams = {
   __typename?: "CommitQueueParams";
   enabled?: Maybe<Scalars["Boolean"]>;
   mergeMethod: Scalars["String"];
+  mergeQueue: MergeQueue;
   message: Scalars["String"];
 };
 
 export type CommitQueueParamsInput = {
   enabled?: InputMaybe<Scalars["Boolean"]>;
   mergeMethod?: InputMaybe<Scalars["String"]>;
+  mergeQueue?: InputMaybe<MergeQueue>;
   message?: InputMaybe<Scalars["String"]>;
 };
 
@@ -235,21 +252,47 @@ export type Dependency = {
   taskId: Scalars["String"];
 };
 
+export type DispatcherSettings = {
+  __typename?: "DispatcherSettings";
+  version?: Maybe<Scalars["String"]>;
+};
+
 export type DisplayTask = {
   ExecTasks: Array<Scalars["String"]>;
   Name: Scalars["String"];
 };
 
-/**
- * Distro[] is the return value for the distros query.
- * It models an environment configuration for a host.
- */
+/** Distro models an environment configuration for a host. */
 export type Distro = {
   __typename?: "Distro";
+  aliases: Array<Scalars["String"]>;
+  arch?: Maybe<Scalars["String"]>;
+  authorizedKeysFile?: Maybe<Scalars["String"]>;
+  bootstrapSettings: BootstrapSettings;
+  cloneMethod?: Maybe<Scalars["String"]>;
+  containerPool?: Maybe<Scalars["String"]>;
+  disableShallowClone: Scalars["Boolean"];
+  disabled: Scalars["Boolean"];
+  dispatcherSettings: DispatcherSettings;
+  expansions: Array<Expansion>;
+  finderSettings: FinderSettings;
+  homeVolumeSettings: HomeVolumeSettings;
+  hostAllocatorSettings: HostAllocatorSettings;
+  iceCreamSettings: IceCreamSettings;
+  isCluster: Scalars["Boolean"];
   isVirtualWorkStation: Scalars["Boolean"];
   name?: Maybe<Scalars["String"]>;
+  note?: Maybe<Scalars["String"]>;
+  plannerSettings: PlannerSettings;
+  provider?: Maybe<Scalars["String"]>;
+  providerSettingsList: Array<Scalars["Map"]>;
+  setup?: Maybe<Scalars["String"]>;
+  setupAsSudo: Scalars["Boolean"];
+  sshKey?: Maybe<Scalars["String"]>;
+  sshOptions: Array<Scalars["String"]>;
   user?: Maybe<Scalars["String"]>;
-  userSpawnAllowed?: Maybe<Scalars["Boolean"]>;
+  userSpawnAllowed: Scalars["Boolean"];
+  validProjects: Array<Maybe<Scalars["String"]>>;
   workDir?: Maybe<Scalars["String"]>;
 };
 
@@ -262,6 +305,13 @@ export type DistroInfo = {
   user?: Maybe<Scalars["String"]>;
   workDir?: Maybe<Scalars["String"]>;
 };
+
+export enum DistroSettingsAccess {
+  Admin = "ADMIN",
+  Create = "CREATE",
+  Edit = "EDIT",
+  View = "VIEW",
+}
 
 export type EcsConfig = {
   __typename?: "ECSConfig";
@@ -287,9 +337,22 @@ export type EditSpawnHostInput = {
   volume?: InputMaybe<Scalars["String"]>;
 };
 
+export type EnvVar = {
+  __typename?: "EnvVar";
+  key?: Maybe<Scalars["String"]>;
+  value?: Maybe<Scalars["String"]>;
+};
+
+export type Expansion = {
+  __typename?: "Expansion";
+  key?: Maybe<Scalars["String"]>;
+  value?: Maybe<Scalars["String"]>;
+};
+
 export type ExternalLink = {
   __typename?: "ExternalLink";
   displayName: Scalars["String"];
+  requesters: Array<Scalars["String"]>;
   urlTemplate: Scalars["String"];
 };
 
@@ -301,6 +364,7 @@ export type ExternalLinkForMetadata = {
 
 export type ExternalLinkInput = {
   displayName: Scalars["String"];
+  requesters?: InputMaybe<Array<Scalars["String"]>>;
   urlTemplate: Scalars["String"];
 };
 
@@ -320,6 +384,11 @@ export type FileDiff = {
   fileName: Scalars["String"];
 };
 
+export type FinderSettings = {
+  __typename?: "FinderSettings";
+  version?: Maybe<Scalars["String"]>;
+};
+
 export type GeneralSubscription = {
   __typename?: "GeneralSubscription";
   id: Scalars["String"];
@@ -330,6 +399,12 @@ export type GeneralSubscription = {
   subscriber?: Maybe<SubscriberWrapper>;
   trigger: Scalars["String"];
   triggerData?: Maybe<Scalars["StringMap"]>;
+};
+
+export type GitTag = {
+  __typename?: "GitTag";
+  pusher: Scalars["String"];
+  tag: Scalars["String"];
 };
 
 export type GithubCheckSubscriber = {
@@ -399,6 +474,11 @@ export type GroupedTaskStatusCount = {
   variant: Scalars["String"];
 };
 
+export type HomeVolumeSettings = {
+  __typename?: "HomeVolumeSettings";
+  formatCommand?: Maybe<Scalars["String"]>;
+};
+
 /** Host models a host, which are used for things like running tasks or as virtual workstations. */
 export type Host = {
   __typename?: "Host";
@@ -426,6 +506,17 @@ export type Host = {
   uptime?: Maybe<Scalars["Time"]>;
   user?: Maybe<Scalars["String"]>;
   volumes: Array<Volume>;
+};
+
+export type HostAllocatorSettings = {
+  __typename?: "HostAllocatorSettings";
+  acceptableHostIdleTime?: Maybe<Scalars["Duration"]>;
+  feedbackRule?: Maybe<Scalars["String"]>;
+  hostsOverallocatedRule?: Maybe<Scalars["String"]>;
+  maximumHosts: Scalars["Int"];
+  minimumHosts: Scalars["Int"];
+  roundingRule?: Maybe<Scalars["String"]>;
+  version?: Maybe<Scalars["String"]>;
 };
 
 export type HostEventLogData = {
@@ -489,6 +580,12 @@ export type HostsResponse = {
   filteredHostsCount?: Maybe<Scalars["Int"]>;
   hosts: Array<Host>;
   totalHostsCount: Scalars["Int"];
+};
+
+export type IceCreamSettings = {
+  __typename?: "IceCreamSettings";
+  configPath?: Maybe<Scalars["String"]>;
+  schedulerHost?: Maybe<Scalars["String"]>;
 };
 
 export type InstanceTag = {
@@ -628,6 +725,11 @@ export type Manifest = {
   project: Scalars["String"];
   revision: Scalars["String"];
 };
+
+export enum MergeQueue {
+  Evergreen = "EVERGREEN",
+  Github = "GITHUB",
+}
 
 export enum MetStatus {
   Met = "MET",
@@ -1178,6 +1280,18 @@ export type Permissions = {
   userId: Scalars["String"];
 };
 
+export type PlannerSettings = {
+  __typename?: "PlannerSettings";
+  expectedRuntimeFactor?: Maybe<Scalars["Int"]>;
+  generateTaskFactor?: Maybe<Scalars["Int"]>;
+  groupVersions?: Maybe<Scalars["Boolean"]>;
+  mainlineTimeInQueueFactor?: Maybe<Scalars["Int"]>;
+  patchFactor?: Maybe<Scalars["Int"]>;
+  patchTimeInQueueFactor?: Maybe<Scalars["Int"]>;
+  targetTime?: Maybe<Scalars["Duration"]>;
+  version?: Maybe<Scalars["String"]>;
+};
+
 export type Pod = {
   __typename?: "Pod";
   events: PodEvents;
@@ -1223,6 +1337,12 @@ export type PodEvents = {
   __typename?: "PodEvents";
   count: Scalars["Int"];
   eventLogEntries: Array<PodEventLogEntry>;
+};
+
+export type PreconditionScript = {
+  __typename?: "PreconditionScript";
+  path?: Maybe<Scalars["String"]>;
+  script?: Maybe<Scalars["String"]>;
 };
 
 /** Project models single repository on GitHub. */
@@ -1285,6 +1405,7 @@ export type ProjectPatchesArgs = {
 export type ProjectAlias = {
   __typename?: "ProjectAlias";
   alias: Scalars["String"];
+  description?: Maybe<Scalars["String"]>;
   gitTag: Scalars["String"];
   id: Scalars["String"];
   remotePath: Scalars["String"];
@@ -1296,6 +1417,7 @@ export type ProjectAlias = {
 
 export type ProjectAliasInput = {
   alias: Scalars["String"];
+  description?: InputMaybe<Scalars["String"]>;
   gitTag: Scalars["String"];
   id: Scalars["String"];
   remotePath: Scalars["String"];
@@ -1480,6 +1602,7 @@ export type Query = {
   buildVariantsForTaskName?: Maybe<Array<Maybe<BuildVariantTuple>>>;
   clientConfig?: Maybe<ClientConfig>;
   commitQueue: CommitQueue;
+  distro?: Maybe<Distro>;
   distroTaskQueue: Array<TaskQueueItem>;
   distros: Array<Maybe<Distro>>;
   githubProjectConflicts: GithubProjectConflicts;
@@ -1531,6 +1654,10 @@ export type QueryBuildVariantsForTaskNameArgs = {
 
 export type QueryCommitQueueArgs = {
   projectIdentifier: Scalars["String"];
+};
+
+export type QueryDistroArgs = {
+  distroId: Scalars["String"];
 };
 
 export type QueryDistroTaskQueueArgs = {
@@ -1644,6 +1771,7 @@ export type RepoCommitQueueParams = {
   __typename?: "RepoCommitQueueParams";
   enabled: Scalars["Boolean"];
   mergeMethod: Scalars["String"];
+  mergeQueue: MergeQueue;
   message: Scalars["String"];
 };
 
@@ -1775,6 +1903,15 @@ export enum RequiredStatus {
   MustFinish = "MUST_FINISH",
   MustSucceed = "MUST_SUCCEED",
 }
+
+export type ResourceLimits = {
+  __typename?: "ResourceLimits";
+  lockedMemoryKb?: Maybe<Scalars["Int"]>;
+  numFiles?: Maybe<Scalars["Int"]>;
+  numProcesses?: Maybe<Scalars["Int"]>;
+  numTasks?: Maybe<Scalars["Int"]>;
+  virtualMemoryKb?: Maybe<Scalars["Int"]>;
+};
 
 export type SearchReturnInfo = {
   __typename?: "SearchReturnInfo";
@@ -2040,6 +2177,7 @@ export type TaskEndDetail = {
   status: Scalars["String"];
   timedOut?: Maybe<Scalars["Boolean"]>;
   timeoutType?: Maybe<Scalars["String"]>;
+  traceID?: Maybe<Scalars["String"]>;
   type: Scalars["String"];
 };
 
@@ -2452,6 +2590,7 @@ export type Version = {
   errors: Array<Scalars["String"]>;
   externalLinksForMetadata: Array<ExternalLinkForMetadata>;
   finishTime?: Maybe<Scalars["Time"]>;
+  gitTags?: Maybe<Array<GitTag>>;
   id: Scalars["String"];
   isPatch: Scalars["Boolean"];
   manifest?: Maybe<Manifest>;
@@ -2872,6 +3011,7 @@ export type RepoAccessSettingsFragment = {
 export type AliasFragment = {
   __typename?: "ProjectAlias";
   alias: string;
+  description?: string | null;
   gitTag: string;
   id: string;
   remotePath: string;
@@ -2960,6 +3100,7 @@ export type ProjectGithubSettingsFragment = {
     __typename?: "CommitQueueParams";
     enabled?: boolean | null;
     mergeMethod: string;
+    mergeQueue: MergeQueue;
     message: string;
   };
 };
@@ -2977,6 +3118,7 @@ export type RepoGithubSettingsFragment = {
     __typename?: "RepoCommitQueueParams";
     enabled: boolean;
     mergeMethod: string;
+    mergeQueue: MergeQueue;
     message: string;
   };
 };
@@ -2997,6 +3139,7 @@ export type ProjectGithubCommitQueueFragment = {
       __typename?: "CommitQueueParams";
       enabled?: boolean | null;
       mergeMethod: string;
+      mergeQueue: MergeQueue;
       message: string;
     };
   } | null;
@@ -3018,6 +3161,7 @@ export type RepoGithubCommitQueueFragment = {
       __typename?: "RepoCommitQueueParams";
       enabled: boolean;
       mergeMethod: string;
+      mergeQueue: MergeQueue;
       message: string;
     };
   } | null;
@@ -3039,6 +3183,7 @@ export type ProjectEventGithubCommitQueueFragment = {
       __typename?: "CommitQueueParams";
       enabled?: boolean | null;
       mergeMethod: string;
+      mergeQueue: MergeQueue;
       message: string;
     };
   } | null;
@@ -3050,6 +3195,7 @@ export type ProjectSettingsFieldsFragment = {
   aliases?: Array<{
     __typename?: "ProjectAlias";
     alias: string;
+    description?: string | null;
     gitTag: string;
     id: string;
     remotePath: string;
@@ -3137,6 +3283,7 @@ export type ProjectSettingsFieldsFragment = {
     externalLinks?: Array<{
       __typename?: "ExternalLink";
       displayName: string;
+      requesters: Array<string>;
       urlTemplate: string;
     }> | null;
     taskAnnotationSettings: {
@@ -3182,6 +3329,7 @@ export type ProjectSettingsFieldsFragment = {
       __typename?: "CommitQueueParams";
       enabled?: boolean | null;
       mergeMethod: string;
+      mergeQueue: MergeQueue;
       message: string;
     };
   } | null;
@@ -3254,6 +3402,7 @@ export type RepoSettingsFieldsFragment = {
   aliases?: Array<{
     __typename?: "ProjectAlias";
     alias: string;
+    description?: string | null;
     gitTag: string;
     id: string;
     remotePath: string;
@@ -3331,6 +3480,7 @@ export type RepoSettingsFieldsFragment = {
     externalLinks?: Array<{
       __typename?: "ExternalLink";
       displayName: string;
+      requesters: Array<string>;
       urlTemplate: string;
     }> | null;
     taskAnnotationSettings: {
@@ -3370,6 +3520,7 @@ export type RepoSettingsFieldsFragment = {
       __typename?: "RepoCommitQueueParams";
       enabled: boolean;
       mergeMethod: string;
+      mergeQueue: MergeQueue;
       message: string;
     };
   } | null;
@@ -3582,6 +3733,7 @@ export type ProjectPluginsSettingsFragment = {
   externalLinks?: Array<{
     __typename?: "ExternalLink";
     displayName: string;
+    requesters: Array<string>;
     urlTemplate: string;
   }> | null;
   taskAnnotationSettings: {
@@ -3610,6 +3762,7 @@ export type RepoPluginsSettingsFragment = {
   externalLinks?: Array<{
     __typename?: "ExternalLink";
     displayName: string;
+    requesters: Array<string>;
     urlTemplate: string;
   }> | null;
   taskAnnotationSettings: {
@@ -3633,6 +3786,7 @@ export type ProjectEventSettingsFragment = {
   aliases?: Array<{
     __typename?: "ProjectAlias";
     alias: string;
+    description?: string | null;
     gitTag: string;
     id: string;
     remotePath: string;
@@ -3667,6 +3821,7 @@ export type ProjectEventSettingsFragment = {
     notifyOnBuildFailure?: boolean | null;
     githubTriggerAliases?: Array<string> | null;
     perfEnabled?: boolean | null;
+    projectHealthView: ProjectHealthView;
     githubChecksEnabled?: boolean | null;
     gitTagAuthorizedTeams?: Array<string> | null;
     gitTagAuthorizedUsers?: Array<string> | null;
@@ -3714,6 +3869,7 @@ export type ProjectEventSettingsFragment = {
     externalLinks?: Array<{
       __typename?: "ExternalLink";
       displayName: string;
+      requesters: Array<string>;
       urlTemplate: string;
     }> | null;
     taskAnnotationSettings: {
@@ -3740,6 +3896,12 @@ export type ProjectEventSettingsFragment = {
       status: string;
       taskRegex: string;
     }> | null;
+    parsleyFilters?: Array<{
+      __typename?: "ParsleyFilter";
+      caseSensitive: boolean;
+      exactMatch: boolean;
+      expression: string;
+    }> | null;
     workstationConfig: {
       __typename?: "WorkstationConfig";
       gitClone?: boolean | null;
@@ -3753,6 +3915,7 @@ export type ProjectEventSettingsFragment = {
       __typename?: "CommitQueueParams";
       enabled?: boolean | null;
       mergeMethod: string;
+      mergeQueue: MergeQueue;
       message: string;
     };
   } | null;
@@ -5385,6 +5548,11 @@ export type MainlineCommitsForHistoryQuery = {
         message: string;
         order: number;
         revision: string;
+        gitTags?: Array<{
+          __typename?: "GitTag";
+          pusher: string;
+          tag: string;
+        }> | null;
         upstreamProject?: {
           __typename?: "UpstreamProject";
           project: string;
@@ -5415,6 +5583,11 @@ export type MainlineCommitsForHistoryQuery = {
             status: string;
           } | null> | null;
         } | null> | null;
+        gitTags?: Array<{
+          __typename?: "GitTag";
+          pusher: string;
+          tag: string;
+        }> | null;
         upstreamProject?: {
           __typename?: "UpstreamProject";
           project: string;
@@ -5495,6 +5668,11 @@ export type MainlineCommitsQuery = {
             count: number;
             status: string;
           }>;
+        }> | null;
+        gitTags?: Array<{
+          __typename?: "GitTag";
+          pusher: string;
+          tag: string;
         }> | null;
         taskStatusStats?: {
           __typename?: "TaskStats";
@@ -5818,6 +5996,7 @@ export type ProjectEventLogsQuery = {
         aliases?: Array<{
           __typename?: "ProjectAlias";
           alias: string;
+          description?: string | null;
           gitTag: string;
           id: string;
           remotePath: string;
@@ -5852,6 +6031,7 @@ export type ProjectEventLogsQuery = {
           notifyOnBuildFailure?: boolean | null;
           githubTriggerAliases?: Array<string> | null;
           perfEnabled?: boolean | null;
+          projectHealthView: ProjectHealthView;
           githubChecksEnabled?: boolean | null;
           gitTagAuthorizedTeams?: Array<string> | null;
           gitTagAuthorizedUsers?: Array<string> | null;
@@ -5899,6 +6079,7 @@ export type ProjectEventLogsQuery = {
           externalLinks?: Array<{
             __typename?: "ExternalLink";
             displayName: string;
+            requesters: Array<string>;
             urlTemplate: string;
           }> | null;
           taskAnnotationSettings: {
@@ -5925,6 +6106,12 @@ export type ProjectEventLogsQuery = {
             status: string;
             taskRegex: string;
           }> | null;
+          parsleyFilters?: Array<{
+            __typename?: "ParsleyFilter";
+            caseSensitive: boolean;
+            exactMatch: boolean;
+            expression: string;
+          }> | null;
           workstationConfig: {
             __typename?: "WorkstationConfig";
             gitClone?: boolean | null;
@@ -5938,6 +6125,7 @@ export type ProjectEventLogsQuery = {
             __typename?: "CommitQueueParams";
             enabled?: boolean | null;
             mergeMethod: string;
+            mergeQueue: MergeQueue;
             message: string;
           };
         } | null;
@@ -6013,6 +6201,7 @@ export type ProjectEventLogsQuery = {
         aliases?: Array<{
           __typename?: "ProjectAlias";
           alias: string;
+          description?: string | null;
           gitTag: string;
           id: string;
           remotePath: string;
@@ -6047,6 +6236,7 @@ export type ProjectEventLogsQuery = {
           notifyOnBuildFailure?: boolean | null;
           githubTriggerAliases?: Array<string> | null;
           perfEnabled?: boolean | null;
+          projectHealthView: ProjectHealthView;
           githubChecksEnabled?: boolean | null;
           gitTagAuthorizedTeams?: Array<string> | null;
           gitTagAuthorizedUsers?: Array<string> | null;
@@ -6094,6 +6284,7 @@ export type ProjectEventLogsQuery = {
           externalLinks?: Array<{
             __typename?: "ExternalLink";
             displayName: string;
+            requesters: Array<string>;
             urlTemplate: string;
           }> | null;
           taskAnnotationSettings: {
@@ -6120,6 +6311,12 @@ export type ProjectEventLogsQuery = {
             status: string;
             taskRegex: string;
           }> | null;
+          parsleyFilters?: Array<{
+            __typename?: "ParsleyFilter";
+            caseSensitive: boolean;
+            exactMatch: boolean;
+            expression: string;
+          }> | null;
           workstationConfig: {
             __typename?: "WorkstationConfig";
             gitClone?: boolean | null;
@@ -6133,6 +6330,7 @@ export type ProjectEventLogsQuery = {
             __typename?: "CommitQueueParams";
             enabled?: boolean | null;
             mergeMethod: string;
+            mergeQueue: MergeQueue;
             message: string;
           };
         } | null;
@@ -6218,6 +6416,7 @@ export type ProjectSettingsQuery = {
     aliases?: Array<{
       __typename?: "ProjectAlias";
       alias: string;
+      description?: string | null;
       gitTag: string;
       id: string;
       remotePath: string;
@@ -6305,6 +6504,7 @@ export type ProjectSettingsQuery = {
       externalLinks?: Array<{
         __typename?: "ExternalLink";
         displayName: string;
+        requesters: Array<string>;
         urlTemplate: string;
       }> | null;
       taskAnnotationSettings: {
@@ -6350,6 +6550,7 @@ export type ProjectSettingsQuery = {
         __typename?: "CommitQueueParams";
         enabled?: boolean | null;
         mergeMethod: string;
+        mergeQueue: MergeQueue;
         message: string;
       };
     } | null;
@@ -6464,6 +6665,7 @@ export type RepoEventLogsQuery = {
         aliases?: Array<{
           __typename?: "ProjectAlias";
           alias: string;
+          description?: string | null;
           gitTag: string;
           id: string;
           remotePath: string;
@@ -6498,6 +6700,7 @@ export type RepoEventLogsQuery = {
           notifyOnBuildFailure?: boolean | null;
           githubTriggerAliases?: Array<string> | null;
           perfEnabled?: boolean | null;
+          projectHealthView: ProjectHealthView;
           githubChecksEnabled?: boolean | null;
           gitTagAuthorizedTeams?: Array<string> | null;
           gitTagAuthorizedUsers?: Array<string> | null;
@@ -6545,6 +6748,7 @@ export type RepoEventLogsQuery = {
           externalLinks?: Array<{
             __typename?: "ExternalLink";
             displayName: string;
+            requesters: Array<string>;
             urlTemplate: string;
           }> | null;
           taskAnnotationSettings: {
@@ -6571,6 +6775,12 @@ export type RepoEventLogsQuery = {
             status: string;
             taskRegex: string;
           }> | null;
+          parsleyFilters?: Array<{
+            __typename?: "ParsleyFilter";
+            caseSensitive: boolean;
+            exactMatch: boolean;
+            expression: string;
+          }> | null;
           workstationConfig: {
             __typename?: "WorkstationConfig";
             gitClone?: boolean | null;
@@ -6584,6 +6794,7 @@ export type RepoEventLogsQuery = {
             __typename?: "CommitQueueParams";
             enabled?: boolean | null;
             mergeMethod: string;
+            mergeQueue: MergeQueue;
             message: string;
           };
         } | null;
@@ -6659,6 +6870,7 @@ export type RepoEventLogsQuery = {
         aliases?: Array<{
           __typename?: "ProjectAlias";
           alias: string;
+          description?: string | null;
           gitTag: string;
           id: string;
           remotePath: string;
@@ -6693,6 +6905,7 @@ export type RepoEventLogsQuery = {
           notifyOnBuildFailure?: boolean | null;
           githubTriggerAliases?: Array<string> | null;
           perfEnabled?: boolean | null;
+          projectHealthView: ProjectHealthView;
           githubChecksEnabled?: boolean | null;
           gitTagAuthorizedTeams?: Array<string> | null;
           gitTagAuthorizedUsers?: Array<string> | null;
@@ -6740,6 +6953,7 @@ export type RepoEventLogsQuery = {
           externalLinks?: Array<{
             __typename?: "ExternalLink";
             displayName: string;
+            requesters: Array<string>;
             urlTemplate: string;
           }> | null;
           taskAnnotationSettings: {
@@ -6766,6 +6980,12 @@ export type RepoEventLogsQuery = {
             status: string;
             taskRegex: string;
           }> | null;
+          parsleyFilters?: Array<{
+            __typename?: "ParsleyFilter";
+            caseSensitive: boolean;
+            exactMatch: boolean;
+            expression: string;
+          }> | null;
           workstationConfig: {
             __typename?: "WorkstationConfig";
             gitClone?: boolean | null;
@@ -6779,6 +6999,7 @@ export type RepoEventLogsQuery = {
             __typename?: "CommitQueueParams";
             enabled?: boolean | null;
             mergeMethod: string;
+            mergeQueue: MergeQueue;
             message: string;
           };
         } | null;
@@ -6864,6 +7085,7 @@ export type RepoSettingsQuery = {
     aliases?: Array<{
       __typename?: "ProjectAlias";
       alias: string;
+      description?: string | null;
       gitTag: string;
       id: string;
       remotePath: string;
@@ -6941,6 +7163,7 @@ export type RepoSettingsQuery = {
       externalLinks?: Array<{
         __typename?: "ExternalLink";
         displayName: string;
+        requesters: Array<string>;
         urlTemplate: string;
       }> | null;
       taskAnnotationSettings: {
@@ -6980,6 +7203,7 @@ export type RepoSettingsQuery = {
         __typename?: "RepoCommitQueueParams";
         enabled: boolean;
         mergeMethod: string;
+        mergeQueue: MergeQueue;
         message: string;
       };
     } | null;
@@ -7419,6 +7643,7 @@ export type TaskQuery = {
       status: string;
       timedOut?: boolean | null;
       timeoutType?: string | null;
+      traceID?: string | null;
       type: string;
       oomTracker: {
         __typename?: "OomTrackerInfo";
@@ -7679,6 +7904,11 @@ export type VersionQuery = {
       displayName: string;
       url: string;
     }>;
+    gitTags?: Array<{
+      __typename?: "GitTag";
+      pusher: string;
+      tag: string;
+    }> | null;
     manifest?: {
       __typename?: "Manifest";
       branch: string;
@@ -7808,6 +8038,22 @@ export type HostsQuery = {
         name?: string | null;
       } | null;
     }>;
+  };
+};
+
+export type ProjectHealthViewQueryVariables = Exact<{
+  identifier: Scalars["String"];
+}>;
+
+export type ProjectHealthViewQuery = {
+  __typename?: "Query";
+  projectSettings: {
+    __typename?: "ProjectSettings";
+    projectRef?: {
+      __typename?: "Project";
+      id: string;
+      projectHealthView: ProjectHealthView;
+    } | null;
   };
 };
 

@@ -1,9 +1,5 @@
 import { ProjectSettingsTabRoutes } from "constants/routes";
-import {
-  ProjectInput,
-  ProjectSettingsQuery,
-  RepoSettingsQuery,
-} from "gql/generated/types";
+import { ProjectInput } from "gql/generated/types";
 import { FormToGqlFunction, GqlToFormFunction } from "../types";
 import { alias as aliasUtils, ProjectType } from "../utils";
 import { FormState } from "./types";
@@ -31,12 +27,7 @@ export const mergeProjectRepo = (
   return mergedObject;
 };
 
-export const gqlToForm: GqlToFormFunction<Tab> = (
-  data:
-    | ProjectSettingsQuery["projectSettings"]
-    | RepoSettingsQuery["repoSettings"],
-  options: { projectType: ProjectType }
-) => {
+export const gqlToForm = ((data, options) => {
   if (!data) return null;
 
   const { projectRef, aliases } = data;
@@ -103,17 +94,18 @@ export const gqlToForm: GqlToFormFunction<Tab> = (
     },
     commitQueue: {
       enabled: commitQueue.enabled,
-      message: commitQueue.message,
       mergeMethod: commitQueue.mergeMethod,
+      mergeQueue: commitQueue.mergeQueue,
+      message: commitQueue.message,
       patchDefinitions: {
         commitQueueAliasesOverride: override(commitQueueAliases),
         commitQueueAliases,
       },
     },
   };
-};
+}) satisfies GqlToFormFunction<Tab>;
 
-export const formToGql: FormToGqlFunction<Tab> = (
+export const formToGql = ((
   {
     github: {
       prTestingEnabled,
@@ -126,8 +118,14 @@ export const formToGql: FormToGqlFunction<Tab> = (
       teams: { gitTagAuthorizedTeams, gitTagAuthorizedTeamsOverride },
       gitTags,
     },
-    commitQueue: { enabled, message, mergeMethod, patchDefinitions },
-  }: FormState,
+    commitQueue: {
+      enabled,
+      mergeMethod,
+      mergeQueue,
+      message,
+      patchDefinitions,
+    },
+  },
   id
 ) => {
   const projectRef: ProjectInput = {
@@ -144,8 +142,9 @@ export const formToGql: FormToGqlFunction<Tab> = (
       : null,
     commitQueue: {
       enabled,
-      message,
       mergeMethod,
+      mergeQueue,
+      message,
     },
   };
 
@@ -184,4 +183,4 @@ export const formToGql: FormToGqlFunction<Tab> = (
     projectRef,
     aliases,
   };
-};
+}) satisfies FormToGqlFunction<Tab>;
