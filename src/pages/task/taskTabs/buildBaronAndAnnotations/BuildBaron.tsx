@@ -5,7 +5,7 @@ import {
   BuildBaronQuery,
   BuildBaronQueryVariables,
 } from "gql/generated/types";
-import { GET_BUILD_BARON } from "gql/queries";
+import { BUILD_BARON } from "gql/queries";
 import BuildBaronContent from "./BuildBaronContent";
 
 interface Props {
@@ -15,14 +15,14 @@ interface Props {
   userCanModify: boolean;
 }
 
-const BuildBaron: React.VFC<Props> = ({
+const BuildBaron: React.FC<Props> = ({
   annotation,
   execution,
   taskId,
   userCanModify,
 }) => {
   const { data, loading } = useQuery<BuildBaronQuery, BuildBaronQueryVariables>(
-    GET_BUILD_BARON,
+    BUILD_BARON,
     {
       variables: { taskId, execution },
     }

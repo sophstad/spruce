@@ -17,7 +17,7 @@ interface TupleSelectWithRegexConditionalProps
  * @param props.validator - function that is called to validate the value of the input
  * @returns The TupleSelectWithRegexConditional component
  */
-const TupleSelectWithRegexConditional: React.VFC<
+const TupleSelectWithRegexConditional: React.FC<
   TupleSelectWithRegexConditionalProps
 > = ({ onSubmit, validator, ...rest }) => {
   const [type, setType] = useState("regex");
@@ -43,7 +43,7 @@ const TupleSelectWithRegexConditional: React.VFC<
         <>
           Add New Filter
           <PaddedSegmentedControl
-            size="small"
+            size="xsmall"
             onChange={setType}
             value={type}
             aria-controls="tuple-select-with-regex"

@@ -22,23 +22,19 @@ import {
   HasVersionQuery,
   HasVersionQueryVariables,
 } from "gql/generated/types";
-import {
-  GET_VERSION,
-  GET_IS_PATCH_CONFIGURED,
-  GET_HAS_VERSION,
-} from "gql/queries";
+import { VERSION, IS_PATCH_CONFIGURED, HAS_VERSION } from "gql/queries";
 import { useSpruceConfig } from "hooks";
 import { PageDoesNotExist } from "pages/404";
 import { isPatchUnconfigured } from "utils/patch";
 import { shortenGithash, githubPRLinkify } from "utils/string";
 import { jiraLinkify } from "utils/string/jiraLinkify";
-import { WarningBanner, ErrorBanner } from "./version/Banners";
+import { WarningBanner, ErrorBanner, IgnoredBanner } from "./version/Banners";
 import VersionPageBreadcrumbs from "./version/Breadcrumbs";
 import BuildVariantCard from "./version/BuildVariantCard";
 import { ActionButtons, Metadata, VersionTabs } from "./version/index";
 import { NameChangeModal } from "./version/NameChangeModal";
 
-export const VersionPage: React.VFC = () => {
+export const VersionPage: React.FC = () => {
   const spruceConfig = useSpruceConfig();
   const { id } = useParams<{ id: string }>();
   const dispatchToast = useToastContext();
@@ -49,7 +45,7 @@ export const VersionPage: React.VFC = () => {
   const [getVersion, { data: versionData, error: versionError }] = useLazyQuery<
     VersionQuery,
     VersionQueryVariables
-  >(GET_VERSION, {
+  >(VERSION, {
     variables: { id },
     fetchPolicy: "cache-and-network",
     onError: (error) => {
@@ -63,7 +59,7 @@ export const VersionPage: React.VFC = () => {
   const [getPatch, { data: patchData, error: patchError }] = useLazyQuery<
     IsPatchConfiguredQuery,
     IsPatchConfiguredQueryVariables
-  >(GET_IS_PATCH_CONFIGURED, {
+  >(IS_PATCH_CONFIGURED, {
     variables: { id },
     onError: (error) => {
       dispatchToast.error(
@@ -76,7 +72,7 @@ export const VersionPage: React.VFC = () => {
   const { error: hasVersionError } = useQuery<
     HasVersionQuery,
     HasVersionQueryVariables
-  >(GET_HAS_VERSION, {
+  >(HAS_VERSION, {
     variables: { id },
     onCompleted: ({ hasVersion }) => {
       if (hasVersion) {
@@ -137,6 +133,7 @@ export const VersionPage: React.VFC = () => {
   const { version } = versionData || {};
   const {
     errors,
+    ignored,
     isPatch,
     message,
     order,
@@ -169,6 +166,7 @@ export const VersionPage: React.VFC = () => {
       <ProjectBanner projectIdentifier={projectIdentifier} />
       {errors && errors.length > 0 && <ErrorBanner errors={errors} />}
       {warnings && warnings.length > 0 && <WarningBanner warnings={warnings} />}
+      {ignored && <IgnoredBanner />}
       {version && (
         <VersionPageBreadcrumbs
           patchNumber={patchNumber}
@@ -195,7 +193,7 @@ export const VersionPage: React.VFC = () => {
           <NameChangeModal patchId={id} originalPatchName={message} />
         )}
       </PageTitle>
-      <PageLayout>
+      <PageLayout hasSider>
         <PageSider>
           <Metadata loading={false} version={version} />
           <BuildVariantCard />

@@ -17,13 +17,13 @@ import {
   RemovePublicKeyMutationVariables,
 } from "gql/generated/types";
 import { REMOVE_PUBLIC_KEY } from "gql/mutations";
-import { GET_MY_PUBLIC_KEYS } from "gql/queries";
+import { MY_PUBLIC_KEYS } from "gql/queries";
 import {
   EditModal,
   EditModalPropsState,
 } from "pages/preferences/preferencesTabs/publicKeysTab/EditModal";
 
-export const PublicKeysTab: React.VFC = () => {
+export const PublicKeysTab: React.FC = () => {
   const dispatchToast = useToastContext();
   const { sendEvent } = usePreferencesAnalytics();
   const [editModalProps, setEditModalProps] = useState<EditModalPropsState>(
@@ -35,7 +35,7 @@ export const PublicKeysTab: React.VFC = () => {
   const { data: myKeysData, loading: loadingMyPublicKeys } = useQuery<
     MyPublicKeysQuery,
     MyPublicKeysQueryVariables
-  >(GET_MY_PUBLIC_KEYS, {
+  >(MY_PUBLIC_KEYS, {
     onError(error) {
       dispatchToast.error(
         `There was an error fetching your public keys: ${error.message}`
@@ -54,7 +54,7 @@ export const PublicKeysTab: React.VFC = () => {
     },
     update(cache, { data }) {
       cache.writeQuery<MyPublicKeysQuery, MyPublicKeysQueryVariables>({
-        query: GET_MY_PUBLIC_KEYS,
+        query: MY_PUBLIC_KEYS,
         data: { myPublicKeys: [...data.removePublicKey] },
       });
     },

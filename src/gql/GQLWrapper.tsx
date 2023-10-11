@@ -14,7 +14,7 @@ import { leaveBreadcrumb, reportError } from "utils/errorReporting";
 
 const { getGQLUrl } = environmentVariables;
 
-const GQLWrapper: React.VFC<{ children: React.ReactNode }> = ({ children }) => {
+const GQLWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { dispatchAuthenticated, logoutAndRedirect } = useAuthDispatchContext();
   return (
     <ApolloProvider
@@ -41,6 +41,9 @@ const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {
+        distroEvents: {
+          keyArgs: ["$distroId"],
+        },
         projectEvents: {
           keyArgs: ["$identifier"],
         },
@@ -51,6 +54,20 @@ const cache = new InMemoryCache({
     },
     GeneralSubscription: {
       keyFields: false,
+    },
+    DistroEventsPayload: {
+      fields: {
+        count: {
+          merge(existing = 0, incoming = 0) {
+            return existing + incoming;
+          },
+        },
+        eventLogEntries: {
+          merge(existing = [], incoming = []) {
+            return [...existing, ...incoming];
+          },
+        },
+      },
     },
     ProjectEvents: {
       fields: {
@@ -119,17 +136,11 @@ const authLink = (logout: () => void): ApolloLink =>
 const logErrorsLink = onError(({ graphQLErrors, operation }) => {
   if (Array.isArray(graphQLErrors)) {
     graphQLErrors.forEach((gqlErr) => {
-      reportError(
-        {
-          message: "GraphQL Error",
-          name: gqlErr.message,
-        },
-        {
-          gqlErr,
-          operationName: operation.operationName,
-          variables: operation.variables,
-        }
-      ).warning();
+      reportError(new Error(gqlErr.message), {
+        gqlErr,
+        operationName: operation.operationName,
+        variables: operation.variables,
+      }).warning();
     });
   }
   // dont track network errors here because they are

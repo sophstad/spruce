@@ -5,7 +5,7 @@ import {
   BuildVariantsForTaskNameQuery,
   BuildVariantsForTaskNameQueryVariables,
 } from "gql/generated/types";
-import { GET_BUILD_VARIANTS_FOR_TASK_NAME } from "gql/queries";
+import { BUILD_VARIANTS_FOR_TASK_NAME } from "gql/queries";
 import {
   renderWithRouterMatch as render,
   screen,
@@ -117,11 +117,12 @@ describe("columnHeaders (Task History)", () => {
         }),
     });
     await waitFor(() => {
-      expect(screen.queryByRole("link")).toHaveAttribute(
-        "href",
-        "/variant-history/evergreen/real-variant-name"
-      );
+      expect(screen.queryAllByDataCy("loading-header-cell")).toHaveLength(0);
     });
+    expect(screen.queryByRole("link")).toHaveAttribute(
+      "href",
+      "/variant-history/evergreen/real-variant-name"
+    );
   });
 
   it("should truncate the variant name only if it is too long", async () => {
@@ -158,6 +159,7 @@ describe("columnHeaders (Task History)", () => {
   });
 
   it("should show a tooltip with the full name when hovering over a truncated variant name", async () => {
+    const user = userEvent.setup();
     const { Component } = RenderFakeToastContext(
       <ColumnHeaders projectIdentifier="evergreen" taskName="some_task" />
     );
@@ -181,9 +183,10 @@ describe("columnHeaders (Task History)", () => {
         }),
     });
     await waitFor(() => {
-      expect(screen.queryByText(trimmedVariantName)).toBeVisible();
+      expect(screen.queryAllByDataCy("loading-header-cell")).toHaveLength(0);
     });
-    userEvent.hover(screen.queryByText(trimmedVariantName));
+    expect(screen.queryByText(trimmedVariantName)).toBeVisible();
+    await user.hover(screen.queryByText(trimmedVariantName));
     await waitFor(() => {
       expect(screen.queryByText(longVariantName)).toBeVisible();
     });
@@ -197,7 +200,7 @@ const mock = (
   BuildVariantsForTaskNameQueryVariables
 > => ({
   request: {
-    query: GET_BUILD_VARIANTS_FOR_TASK_NAME,
+    query: BUILD_VARIANTS_FOR_TASK_NAME,
     variables: {
       projectIdentifier: "evergreen",
       taskName: "some_task",

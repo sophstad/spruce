@@ -6,7 +6,7 @@ import { TaskEventLogEntry } from "gql/generated/types";
 import { useDateFormat } from "hooks";
 import { TaskEventType } from "types/task";
 
-export const TaskEventLogLine: React.VFC<TaskEventLogEntry> = ({
+export const TaskEventLogLine: React.FC<TaskEventLogEntry> = ({
   data,
   eventType,
   timestamp,
@@ -17,6 +17,9 @@ export const TaskEventLogLine: React.VFC<TaskEventLogEntry> = ({
   const containerOrHostCopy = podId ? "container" : "host";
   let message: JSX.Element;
   switch (eventType) {
+    case TaskEventType.TaskBlocked:
+      message = <>Task is blocked.</>;
+      break;
     case TaskEventType.TaskFinished:
       message = (
         <>

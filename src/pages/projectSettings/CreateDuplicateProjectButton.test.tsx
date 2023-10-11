@@ -1,10 +1,10 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { RenderFakeToastContext } from "context/toast/__mocks__";
 import {
-  UserPermissionsQuery,
-  UserPermissionsQueryVariables,
+  UserProjectSettingsPermissionsQuery,
+  UserProjectSettingsPermissionsQueryVariables,
 } from "gql/generated/types";
-import { GET_USER_PERMISSIONS } from "gql/queries";
+import { USER_PROJECT_SETTINGS_PERMISSIONS } from "gql/queries";
 import {
   renderWithRouterMatch as render,
   screen,
@@ -19,7 +19,7 @@ const owner = "existing_owner";
 const repo = "existing_repo";
 
 const Button = ({
-  mock = userPermissionsMock,
+  mock = permissionsMock,
   projectType = ProjectType.AttachedProject,
 }: {
   mock?: MockedResponse;
@@ -39,11 +39,11 @@ const Button = ({
 describe("createDuplicateProjectField", () => {
   it("does not show button when user lacks permissions", async () => {
     const lacksPermissionsMock: ApolloMock<
-      UserPermissionsQuery,
-      UserPermissionsQueryVariables
+      UserProjectSettingsPermissionsQuery,
+      UserProjectSettingsPermissionsQueryVariables
     > = {
       request: {
-        query: GET_USER_PERMISSIONS,
+        query: USER_PROJECT_SETTINGS_PERMISSIONS,
         variables: {},
       },
       result: {
@@ -69,72 +69,70 @@ describe("createDuplicateProjectField", () => {
 
   describe("when looking at a repo", () => {
     it("clicking the button opens the new project modal", async () => {
+      const user = userEvent.setup();
       const { Component } = RenderFakeToastContext(
         <Button projectType={ProjectType.Repo} />
       );
       render(<Component />);
 
       await screen.findByText("New Project");
-      userEvent.click(screen.queryByDataCy("new-project-button"));
-      await waitFor(() =>
-        expect(screen.queryByDataCy("create-project-modal")).toBeVisible()
-      );
+      await user.click(screen.queryByDataCy("new-project-button"));
+      await waitFor(() => {
+        expect(screen.queryByDataCy("create-project-modal")).toBeVisible();
+      });
       expect(screen.queryByDataCy("new-project-menu")).not.toBeInTheDocument();
     });
   });
 
   describe("when looking at a project", () => {
     it("clicking the button opens the menu", async () => {
+      const user = userEvent.setup();
       const { Component } = RenderFakeToastContext(<Button />);
       render(<Component />);
 
       await screen.findByText("New Project");
-      userEvent.click(screen.queryByDataCy("new-project-button"));
-      await waitFor(() =>
-        expect(screen.queryByDataCy("new-project-menu")).toBeVisible()
-      );
+      await user.click(screen.queryByDataCy("new-project-button"));
+      expect(screen.queryByDataCy("new-project-menu")).toBeVisible();
     });
 
     it("clicking the 'Create New Project' button opens the create project modal and closes the menu", async () => {
+      const user = userEvent.setup();
       const { Component } = RenderFakeToastContext(<Button />);
       render(<Component />);
 
       await screen.findByText("New Project");
-      userEvent.click(screen.queryByDataCy("new-project-button"));
-      await waitFor(() =>
-        expect(screen.queryByDataCy("new-project-menu")).toBeVisible()
-      );
-      userEvent.click(screen.queryByDataCy("create-project-button"));
-      await waitFor(() =>
-        expect(screen.queryByDataCy("create-project-modal")).toBeVisible()
-      );
+      await user.click(screen.queryByDataCy("new-project-button"));
+      expect(screen.queryByDataCy("new-project-menu")).toBeVisible();
+      await user.click(screen.queryByDataCy("create-project-button"));
+      await waitFor(() => {
+        expect(screen.queryByDataCy("create-project-modal")).toBeVisible();
+      });
       expect(screen.queryByDataCy("new-project-menu")).not.toBeInTheDocument();
     });
 
     it("clicking the 'Duplicate Project' button opens the create project modal and closes the menu", async () => {
+      const user = userEvent.setup();
       const { Component } = RenderFakeToastContext(<Button />);
       render(<Component />);
 
       await screen.findByText("New Project");
-      userEvent.click(screen.queryByDataCy("new-project-button"));
-      await waitFor(() =>
-        expect(screen.queryByDataCy("new-project-menu")).toBeVisible()
-      );
-      userEvent.click(screen.queryByDataCy("copy-project-button"));
-      await waitFor(() =>
-        expect(screen.queryByDataCy("copy-project-modal")).toBeVisible()
-      );
+      await user.click(screen.queryByDataCy("new-project-button"));
+      expect(screen.queryByDataCy("new-project-menu")).toBeVisible();
+      await user.click(screen.queryByDataCy("copy-project-button"));
+      await waitFor(() => {
+        expect(screen.queryByDataCy("copy-project-modal")).toBeVisible();
+      });
       expect(screen.queryByDataCy("new-project-menu")).not.toBeInTheDocument();
     });
   });
 });
 
-const userPermissionsMock: ApolloMock<
-  UserPermissionsQuery,
-  UserPermissionsQueryVariables
+const permissionsMock: ApolloMock<
+  UserProjectSettingsPermissionsQuery,
+  UserProjectSettingsPermissionsQueryVariables
 > = {
   request: {
-    query: GET_USER_PERMISSIONS,
+    query: USER_PROJECT_SETTINGS_PERMISSIONS,
     variables: {},
   },
   result: {

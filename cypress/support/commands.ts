@@ -1,5 +1,6 @@
-const LOGIN_COOKIE = "mci-token";
-const loginURL = "http://localhost:9090/login";
+import { EVG_BASE_URL, GQL_URL } from "../constants";
+import { hasOperationName } from "../utils/graphql-test-utils";
+
 const user = {
   username: "admin",
   password: "password",
@@ -47,7 +48,11 @@ Cypress.Commands.add("enterLoginCredentials", () => {
 });
 
 /* getInputByLabel */
-Cypress.Commands.add("getInputByLabel", (label: string) => {
+Cypress.Commands.add("getInputByLabel", (label: string | RegExp) => {
+  // LeafyGreen inputs start out with ids of "undefined". Wait until LeafyGreen components have proper ids.
+  cy.contains("label", label)
+    .should("have.attr", "for")
+    .and("not.contain", "undefined");
   cy.contains("label", label)
     .invoke("attr", "for")
     .then((id) => {
@@ -57,10 +62,17 @@ Cypress.Commands.add("getInputByLabel", (label: string) => {
 
 /* login */
 Cypress.Commands.add("login", () => {
-  cy.getCookie(LOGIN_COOKIE).then((c) => {
+  cy.getCookie("mci-token").then((c) => {
     if (!c) {
-      cy.request("POST", loginURL, { ...user });
+      cy.request("POST", `${EVG_BASE_URL}/login`, { ...user });
     }
+  });
+});
+
+/* logout */
+Cypress.Commands.add("logout", () => {
+  cy.origin(EVG_BASE_URL, () => {
+    cy.request({ url: "/logout", followRedirect: false });
   });
 });
 
@@ -94,8 +106,23 @@ Cypress.Commands.add(
 );
 
 /* selectLGOption */
-Cypress.Commands.add("selectLGOption", (label: string, option: string) => {
-  // open select
-  cy.getInputByLabel(label).click({ force: true });
-  return cy.contains(option).click();
+Cypress.Commands.add(
+  "selectLGOption",
+  (label: string, option: string | RegExp) => {
+    cy.getInputByLabel(label).click({ force: true }); // open select
+    cy.get('[role="listbox"]').should("have.length", 1);
+    cy.get('[role="listbox"]').within(() => {
+      cy.contains(option).click();
+    });
+  }
+);
+
+Cypress.Commands.add("overwriteGQL", (operationName: string, body: any) => {
+  cy.intercept("POST", GQL_URL, (req) => {
+    if (hasOperationName(req, operationName)) {
+      req.reply((res) => {
+        res.body = body;
+      });
+    }
+  });
 });

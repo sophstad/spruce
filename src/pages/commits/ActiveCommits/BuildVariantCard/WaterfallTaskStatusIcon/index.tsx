@@ -13,7 +13,7 @@ import {
   FailedTaskStatusIconTooltipQuery,
   FailedTaskStatusIconTooltipQueryVariables,
 } from "gql/generated/types";
-import { GET_FAILED_TASK_STATUS_ICON_TOOLTIP } from "gql/queries";
+import { FAILED_TASK_STATUS_ICON_TOOLTIP } from "gql/queries";
 import {
   injectGlobalHighlightStyle,
   removeGlobalHighlightStyle,
@@ -32,7 +32,7 @@ interface WaterfallTaskStatusIconProps {
 }
 
 let timeout;
-export const WaterfallTaskStatusIcon: React.VFC<
+export const WaterfallTaskStatusIcon: React.FC<
   WaterfallTaskStatusIconProps
 > = ({
   displayName,
@@ -47,7 +47,7 @@ export const WaterfallTaskStatusIcon: React.VFC<
   const [loadData, { data, loading }] = useLazyQuery<
     FailedTaskStatusIconTooltipQuery,
     FailedTaskStatusIconTooltipQueryVariables
-  >(GET_FAILED_TASK_STATUS_ICON_TOOLTIP, { variables: { taskId } });
+  >(FAILED_TASK_STATUS_ICON_TOOLTIP, { variables: { taskId } });
 
   const { filteredTestCount, testResults } = data?.task?.tests ?? {};
   const failedTestDifference = filteredTestCount - (testResults ?? []).length;

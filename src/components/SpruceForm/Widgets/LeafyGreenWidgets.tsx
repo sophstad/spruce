@@ -24,7 +24,7 @@ import { isNullish, processErrors } from "./utils";
 
 const { yellow } = palette;
 
-export const LeafyGreenTextInput: React.VFC<
+export const LeafyGreenTextInput: React.FC<
   { options: { optional?: boolean } } & SpruceWidgetProps
 > = ({
   disabled,
@@ -42,13 +42,13 @@ export const LeafyGreenTextInput: React.VFC<
     "data-cy": dataCy,
     description,
     elementWrapperCSS,
-    emptyValue = "",
     inputType,
     optional,
     warnings,
   } = options;
 
   const { errors, hasError } = processErrors(rawErrors);
+  const emptyValue = options.emptyValue ?? "";
 
   const inputProps = {
     ...(!isNullish(schema.maximum) && { max: schema.maximum }),
@@ -58,30 +58,26 @@ export const LeafyGreenTextInput: React.VFC<
   };
 
   return (
-    <ElementWrapper css={elementWrapperCSS}>
-      <MaxWidthContainer>
-        <StyledTextInput
-          type={inputType}
-          data-cy={dataCy}
-          value={value === null || value === undefined ? "" : `${value}`}
-          aria-labelledby={ariaLabelledBy}
-          label={ariaLabelledBy ? undefined : label}
-          placeholder={placeholder || undefined}
-          description={description}
-          optional={optional}
-          disabled={disabled || readonly}
-          onChange={({ target }) =>
-            target.value === "" ? onChange(emptyValue) : onChange(target.value)
-          }
-          aria-label={label}
-          {...inputProps}
-        />
-        {!!warnings?.length && (
-          <WarningText data-cy="input-warning">
-            {warnings.join(", ")}
-          </WarningText>
-        )}
-      </MaxWidthContainer>
+    <ElementWrapper limitMaxWidth css={elementWrapperCSS}>
+      <StyledTextInput
+        type={inputType}
+        data-cy={dataCy}
+        value={value === null || value === undefined ? "" : `${value}`}
+        aria-labelledby={ariaLabelledBy}
+        label={ariaLabelledBy ? undefined : label}
+        placeholder={placeholder || undefined}
+        description={description}
+        optional={optional}
+        disabled={disabled || readonly}
+        onChange={({ target }) =>
+          target.value === "" ? onChange(emptyValue) : onChange(target.value)
+        }
+        aria-label={label}
+        {...inputProps}
+      />
+      {!!warnings?.length && (
+        <WarningText data-cy="input-warning">{warnings.join(", ")}</WarningText>
+      )}
     </ElementWrapper>
   );
 };
@@ -99,7 +95,7 @@ const WarningText = styled.p`
   margin-top: ${size.xs};
 `;
 
-export const LeafyGreenCheckBox: React.VFC<SpruceWidgetProps> = ({
+export const LeafyGreenCheckBox: React.FC<SpruceWidgetProps> = ({
   disabled,
   label,
   onChange,
@@ -108,16 +104,21 @@ export const LeafyGreenCheckBox: React.VFC<SpruceWidgetProps> = ({
   value,
 }) => {
   const {
+    bold,
     customLabel,
     "data-cy": dataCy,
+    description,
     elementWrapperCSS,
     tooltipDescription,
   } = options;
   return (
     <ElementWrapper css={elementWrapperCSS}>
       <Checkbox
-        data-cy={dataCy}
+        bold={bold || false}
         checked={value}
+        data-cy={dataCy}
+        description={description}
+        disabled={disabled || readonly}
         label={
           <>
             {customLabel || label}
@@ -138,7 +139,6 @@ export const LeafyGreenCheckBox: React.VFC<SpruceWidgetProps> = ({
           </>
         }
         onChange={(e) => onChange(e.target.checked)}
-        disabled={disabled || readonly}
       />
     </ElementWrapper>
   );
@@ -150,7 +150,7 @@ const IconContainer = styled.span`
   vertical-align: text-top;
 `;
 
-export const LeafyGreenSelect: React.VFC<
+export const LeafyGreenSelect: React.FC<
   { options: { allowDeselect?: boolean } } & EnumSpruceWidgetProps
 > = ({
   disabled,
@@ -178,40 +178,38 @@ export const LeafyGreenSelect: React.VFC<
     ariaLabelledBy ? { "aria-labelledby": ariaLabelledBy } : { label };
 
   return (
-    <ElementWrapper css={elementWrapperCSS}>
-      <MaxWidthContainer>
-        <Select
-          allowDeselect={allowDeselect !== false}
-          description={description}
-          disabled={isDisabled}
-          value={value}
-          {...labelProps}
-          onChange={onChange}
-          placeholder={placeholder}
-          id={dataCy}
-          name={dataCy}
-          data-cy={dataCy}
-          state={hasError && !disabled ? "error" : "none"}
-          errorMessage={hasError ? rawErrors?.join(", ") : ""}
-          popoverZIndex={zIndex.dropdown}
-        >
-          {enumOptions.map((o) => {
-            // LG Select doesn't handle disabled options well. So we need to ensure the selected option is not disabled
-            const optionDisabled =
-              (value !== o.value && enumDisabled?.includes(o.value)) ?? false;
-            return (
-              <Option key={o.value} value={o.value} disabled={optionDisabled}>
-                {o.label}
-              </Option>
-            );
-          })}
-        </Select>
-      </MaxWidthContainer>
+    <ElementWrapper limitMaxWidth css={elementWrapperCSS}>
+      <Select
+        allowDeselect={allowDeselect !== false}
+        description={description}
+        disabled={isDisabled}
+        value={value}
+        {...labelProps}
+        onChange={onChange}
+        placeholder={placeholder}
+        id={dataCy}
+        name={dataCy}
+        data-cy={dataCy}
+        state={hasError && !disabled ? "error" : "none"}
+        errorMessage={hasError ? rawErrors?.join(", ") : ""}
+        popoverZIndex={zIndex.dropdown}
+      >
+        {enumOptions.map((o) => {
+          // LG Select doesn't handle disabled options well. So we need to ensure the selected option is not disabled
+          const optionDisabled =
+            (value !== o.value && enumDisabled?.includes(o.value)) ?? false;
+          return (
+            <Option key={o.value} value={o.value} disabled={optionDisabled}>
+              {o.label}
+            </Option>
+          );
+        })}
+      </Select>
     </ElementWrapper>
   );
 };
 
-export const LeafyGreenRadio: React.VFC<EnumSpruceWidgetProps> = ({
+export const LeafyGreenRadio: React.FC<EnumSpruceWidgetProps> = ({
   disabled,
   label,
   onChange,
@@ -251,7 +249,7 @@ export const LeafyGreenRadio: React.VFC<EnumSpruceWidgetProps> = ({
   );
 };
 
-export const LeafyGreenRadioBox: React.VFC<
+export const LeafyGreenRadioBox: React.FC<
   { options: { description: string | JSX.Element } } & EnumSpruceWidgetProps
 > = ({ disabled, id, label, onChange, options, uiSchema, value }) => {
   const {
@@ -330,20 +328,23 @@ const StyledRadioBox = styled(RadioBox)`
   line-height: 1.25;
 `;
 
-export const LeafyGreenTextArea: React.VFC<SpruceWidgetProps> = ({
+export const LeafyGreenTextArea: React.FC<SpruceWidgetProps> = ({
   disabled,
   label,
   onChange,
   options,
+  placeholder,
   rawErrors,
   readonly,
   value,
 }) => {
   const {
     "data-cy": dataCy,
+    description,
     elementWrapperCSS,
     emptyValue = "",
     focusOnMount,
+    rows,
   } = options;
 
   const { errors, hasError } = processErrors(rawErrors);
@@ -364,21 +365,24 @@ export const LeafyGreenTextArea: React.VFC<SpruceWidgetProps> = ({
     <ElementWrapper css={elementWrapperCSS}>
       <TextArea
         ref={el}
+        placeholder={placeholder || undefined}
         data-cy={dataCy}
         label={label}
+        description={description}
         disabled={disabled || readonly}
         value={value}
         onChange={({ target }) =>
           target.value === "" ? onChange(emptyValue) : onChange(target.value)
         }
         errorMessage={hasError ? errors.join(", ") : null}
+        rows={rows}
         state={hasError ? "error" : "none"}
       />
     </ElementWrapper>
   );
 };
 
-export const LeafyGreenSegmentedControl: React.VFC<EnumSpruceWidgetProps> = ({
+export const LeafyGreenSegmentedControl: React.FC<EnumSpruceWidgetProps> = ({
   disabled,
   label,
   onChange,
@@ -427,8 +431,4 @@ export const LeafyGreenSegmentedControl: React.VFC<EnumSpruceWidgetProps> = ({
 const StyledSegmentedControl = styled(SegmentedControl)`
   box-sizing: border-box;
   margin-bottom: ${size.s};
-`;
-
-export const MaxWidthContainer = styled.div`
-  max-width: 400px;
 `;

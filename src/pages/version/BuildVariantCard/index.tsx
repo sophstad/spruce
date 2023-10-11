@@ -1,23 +1,25 @@
 import { useQuery } from "@apollo/client";
 import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
+import { navBarHeight } from "components/Header/Navbar";
 import { MetadataCard, MetadataTitle } from "components/MetadataCard";
 import { DEFAULT_POLL_INTERVAL } from "constants/index";
+import { size } from "constants/tokens";
 import {
   BuildVariantStatsQuery,
   BuildVariantStatsQueryVariables,
 } from "gql/generated/types";
-import { GET_BUILD_VARIANTS_STATS } from "gql/queries";
+import { BUILD_VARIANTS_STATS } from "gql/queries";
 import { usePolling } from "hooks";
 import VariantTaskGroup from "./VariantTaskGroup";
 
-const BuildVariantCard: React.VFC = () => {
+const BuildVariantCard: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   const { data, error, loading, refetch, startPolling, stopPolling } = useQuery<
     BuildVariantStatsQuery,
     BuildVariantStatsQueryVariables
-  >(GET_BUILD_VARIANTS_STATS, {
+  >(BUILD_VARIANTS_STATS, {
     fetchPolicy: "cache-and-network",
     variables: { id },
     pollInterval: DEFAULT_POLL_INTERVAL,
@@ -46,13 +48,16 @@ const BuildVariantCard: React.VFC = () => {
 };
 
 const StickyMetadataCard = styled(MetadataCard)`
+  display: flex;
+  flex-direction: column;
+  /* Subtract navbar height, top, and bottom margin from viewport height */
+  max-height: calc(100vh - ${navBarHeight} - ${size.m} - ${size.m});
   position: sticky;
   top: 0;
 `;
 
 const ScrollableBuildVariantStatsContainer = styled.div`
-  max-height: 55vh;
-  overflow-y: auto;
+  overflow-y: scroll;
 `;
 
 export default BuildVariantCard;

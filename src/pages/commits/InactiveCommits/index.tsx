@@ -5,6 +5,7 @@ import Tooltip from "@leafygreen-ui/tooltip";
 import { Disclaimer } from "@leafygreen-ui/typography";
 import { useProjectHealthAnalytics } from "analytics/projectHealth/useProjectHealthAnalytics";
 import { DisplayModal } from "components/DisplayModal";
+import Icon from "components/Icon";
 import { StyledRouterLink } from "components/styles";
 import { getVersionRoute, getTaskRoute } from "constants/routes";
 import { size, zIndex, fontSize } from "constants/tokens";
@@ -29,7 +30,7 @@ interface InactiveCommitsProps {
   rolledUpVersions: CommitRolledUpVersions;
   hasFilters: boolean;
 }
-export const InactiveCommitButton: React.VFC<InactiveCommitsProps> = ({
+export const InactiveCommitButton: React.FC<InactiveCommitsProps> = ({
   hasFilters = false,
   rolledUpVersions,
 }) => {
@@ -127,7 +128,7 @@ interface CommitCopyProps {
  * @param props.isTooltip - boolean to indicate if used in tooltip
  * @returns CommitCopy component
  */
-const CommitCopy: React.VFC<CommitCopyProps> = ({ isTooltip, v }) => {
+const CommitCopy: React.FC<CommitCopyProps> = ({ isTooltip, v }) => {
   const { sendEvent } = useProjectHealthAnalytics({ page: "Commit chart" });
   const getDateCopy = useDateFormat();
   const spruceConfig = useSpruceConfig();
@@ -167,6 +168,7 @@ const CommitCopy: React.VFC<CommitCopyProps> = ({ isTooltip, v }) => {
         </>
       )}
       <CommitBodyText>
+        {v.ignored && <StyledIcon data-cy="ignored-icon" glyph="Ignored" />}
         {v.author} -{" "}
         {jiraLinkify(message, jiraHost, () => {
           sendEvent({
@@ -180,6 +182,11 @@ const CommitCopy: React.VFC<CommitCopyProps> = ({ isTooltip, v }) => {
     </CommitText>
   );
 };
+
+const StyledIcon = styled(Icon)`
+  margin-right: ${size.xxs};
+  vertical-align: text-bottom;
+`;
 
 const InactiveCommitContainer = styled.div`
   display: flex;

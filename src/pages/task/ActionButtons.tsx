@@ -38,7 +38,7 @@ import {
 import { useLGButtonRouterLink } from "hooks/useLGButtonRouterLink";
 import { useQueryParam } from "hooks/useQueryParam";
 import { TaskStatus } from "types/task";
-import { PreviousCommits } from "./actionButtons/previousCommits/PreviousCommits";
+import { PreviousCommits } from "./actionButtons/previousCommits";
 import { TaskNotificationModal } from "./actionButtons/TaskNotificationModal";
 
 interface Props {
@@ -48,7 +48,7 @@ interface Props {
   task: TaskQuery["task"];
 }
 
-export const ActionButtons: React.VFC<Props> = ({
+export const ActionButtons: React.FC<Props> = ({
   initialPriority = 1,
   isDisplayTask,
   isExecutionTask,
@@ -129,8 +129,14 @@ export const ActionButtons: React.VFC<Props> = ({
     RestartTaskMutationVariables
   >(RESTART_TASK, {
     onCompleted: (data) => {
-      const { latestExecution } = data.restartTask;
-      dispatchToast.success("Task scheduled to restart");
+      const { latestExecution, priority } = data.restartTask;
+      if (priority < 0) {
+        dispatchToast.warning(
+          "Task scheduled to restart, but is disabled. Enable the task to run."
+        );
+      } else {
+        dispatchToast.success("Task scheduled to restart");
+      }
       setExecution(latestExecution);
     },
     onError: (err) => {

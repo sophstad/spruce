@@ -144,6 +144,7 @@ export const getFormSchema = (
         "ui:useExpandableCard": true,
         items: {
           "ui:displayTitle": "New Subscription",
+          "ui:label": false,
           subscriptionData: {
             event: eventUiSchema,
             notification: notificationUiSchema,
@@ -154,7 +155,7 @@ export const getFormSchema = (
   };
 };
 
-const HelpText: React.VFC = () => {
+const HelpText: React.FC = () => {
   const spruceConfig = useSpruceConfig();
   const slackName = spruceConfig?.slack?.name;
 

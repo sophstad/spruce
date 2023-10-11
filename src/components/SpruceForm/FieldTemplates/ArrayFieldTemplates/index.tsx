@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import Button from "@leafygreen-ui/button";
 import ExpandableCard from "@leafygreen-ui/expandable-card";
 import { palette } from "@leafygreen-ui/palette";
-import { Body } from "@leafygreen-ui/typography";
+import { Body, BodyProps } from "@leafygreen-ui/typography";
 import { ArrayFieldTemplateProps, getTemplate } from "@rjsf/utils";
 import { PlusButton } from "components/Buttons";
 import Icon from "components/Icon";
@@ -11,13 +11,14 @@ import { formComponentSpacingCSS } from "components/SettingsCard";
 import { size } from "constants/tokens";
 import { Unpacked } from "types/utils";
 import ElementWrapper from "../../ElementWrapper";
+import { STANDARD_FIELD_WIDTH } from "../../utils";
 
 const { gray } = palette;
 // Total pixel count above a text field with a label. Used to align buttons to the
 // top of the text box itself.
 const labelOffset = size.m;
 
-const ArrayItem: React.VFC<
+const ArrayItem: React.FC<
   {
     border: boolean;
     title: string;
@@ -127,7 +128,7 @@ const ArrayItemRow = styled.div<{ border: boolean; index: number }>`
  * @param props.registry - registry
  * @returns JSX.Element
  */
-export const ArrayFieldTemplate: React.VFC<ArrayFieldTemplateProps> = ({
+export const ArrayFieldTemplate: React.FC<ArrayFieldTemplateProps> = ({
   canAdd,
   disabled,
   formData,
@@ -252,11 +253,11 @@ type ArrayContainerProps = {
   fullWidth?: boolean;
 };
 
-const ArrayContainer = styled.div`
+const ArrayContainer = styled.div<ArrayContainerProps>`
   ${({ hasChildren }) => hasChildren && `margin-bottom: ${size.m};`}
   min-width: min-content;
-  width: ${({ fullWidth }: ArrayContainerProps): string =>
-    fullWidth ? "100%" : "70%"};
+  ${({ fullWidth }) =>
+    fullWidth ? "" : `max-width: ${STANDARD_FIELD_WIDTH}px;`}
 `;
 
 const DeleteButtonWrapper = styled(ElementWrapper)`
@@ -285,6 +286,6 @@ const TitleWrapper = styled.span`
   margin-right: ${size.s};
 `;
 
-const Placeholder = styled(Body)`
+const Placeholder = styled(Body)<BodyProps>`
   ${formComponentSpacingCSS}
 `;

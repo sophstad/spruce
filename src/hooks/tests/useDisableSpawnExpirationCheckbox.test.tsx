@@ -1,5 +1,4 @@
 import { MockedProvider } from "@apollo/client/testing";
-import { renderHook } from "@testing-library/react-hooks";
 import {
   MyHostsQuery,
   MyHostsQueryVariables,
@@ -7,7 +6,8 @@ import {
   MyVolumesQueryVariables,
 } from "gql/generated/types";
 import { getSpruceConfigMock } from "gql/mocks/getSpruceConfig";
-import { GET_MY_VOLUMES, GET_MY_HOSTS } from "gql/queries";
+import { MY_VOLUMES, MY_HOSTS } from "gql/queries";
+import { renderHook } from "test_utils";
 import { ApolloMock } from "types/gql";
 import { useDisableSpawnExpirationCheckbox } from "..";
 
@@ -20,18 +20,17 @@ const getProvider = (mocks) => {
 
 describe("useDisableSpawnExpirationCheckbox", () => {
   it("should return true when the user already has the maximum unexpirable volumes and a target item is not supplied.", async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => useDisableSpawnExpirationCheckbox(true),
       {
         wrapper: getProvider(mocks),
       }
     );
-    await waitForNextUpdate();
     expect(result.current).toBeTruthy();
   });
 
   it("should return false when when the user has the maximum number of unexpirable volumes and the target item is unexpirable.", async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () =>
         useDisableSpawnExpirationCheckbox(true, {
           ...volume,
@@ -39,12 +38,11 @@ describe("useDisableSpawnExpirationCheckbox", () => {
         }),
       { wrapper: getProvider(mocks) }
     );
-    await waitForNextUpdate();
     expect(result.current).toBeFalsy();
   });
 
   it("should return true when the user has the maximum number of unexpirable volumes and the target item is expirable.", async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () =>
         useDisableSpawnExpirationCheckbox(true, {
           ...volume,
@@ -54,21 +52,19 @@ describe("useDisableSpawnExpirationCheckbox", () => {
         wrapper: getProvider(mocks),
       }
     );
-    await waitForNextUpdate();
     expect(result.current).toBeTruthy();
   });
 
   it("should return true when the user has the maximum number of hosts and a target item is not supplied.", async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => useDisableSpawnExpirationCheckbox(false),
       { wrapper: getProvider(mocks) }
     );
-    await waitForNextUpdate();
     expect(result.current).toBeTruthy();
   });
 
   it("should return false when when user has the maximum number of unexpirable hosts and the target item is unexpirable.", async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () =>
         useDisableSpawnExpirationCheckbox(false, {
           ...host,
@@ -78,12 +74,11 @@ describe("useDisableSpawnExpirationCheckbox", () => {
         wrapper: getProvider(mocks),
       }
     );
-    await waitForNextUpdate();
     expect(result.current).toBeFalsy();
   });
 
   it("should return false when when user has the maximum number of unexpirable hosts and the target item is expirable.", async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () =>
         useDisableSpawnExpirationCheckbox(false, {
           ...host,
@@ -93,7 +88,6 @@ describe("useDisableSpawnExpirationCheckbox", () => {
         wrapper: getProvider(mocks),
       }
     );
-    await waitForNextUpdate();
     expect(result.current).toBeTruthy();
   });
 });
@@ -122,7 +116,7 @@ const myVolumesBase: Omit<
 };
 const myVolumesQueryMock: ApolloMock<MyVolumesQuery, MyVolumesQueryVariables> =
   {
-    request: { query: GET_MY_VOLUMES, variables: {} },
+    request: { query: MY_VOLUMES, variables: {} },
     result: {
       data: {
         myVolumes: [
@@ -245,7 +239,7 @@ const myHostBase: Omit<MyHostsQuery["myHosts"][0], "noExpiration" | "id"> = {
 };
 const myHostsMock: ApolloMock<MyHostsQuery, MyHostsQueryVariables> = {
   request: {
-    query: GET_MY_HOSTS,
+    query: MY_HOSTS,
     variables: {},
   },
   result: {

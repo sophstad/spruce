@@ -16,7 +16,7 @@ import {
   TestResult,
   TaskQuery,
 } from "gql/generated/types";
-import { GET_TASK_TESTS } from "gql/queries";
+import { TASK_TESTS } from "gql/queries";
 import {
   useUpdateURLQueryParams,
   usePolling,
@@ -34,7 +34,7 @@ const { parseQueryString, queryParamAsNumber } = queryString;
 interface TestsTableProps {
   task: TaskQuery["task"];
 }
-export const TestsTable: React.VFC<TestsTableProps> = ({ task }) => {
+export const TestsTable: React.FC<TestsTableProps> = ({ task }) => {
   const { pathname, search } = useLocation();
   const updateQueryParams = useUpdateURLQueryParams();
   const taskAnalytics = useTaskAnalytics();
@@ -106,7 +106,7 @@ export const TestsTable: React.VFC<TestsTableProps> = ({ task }) => {
   const { data, loading, refetch, startPolling, stopPolling } = useQuery<
     TaskTestsQuery,
     TaskTestsQueryVariables
-  >(GET_TASK_TESTS, {
+  >(TASK_TESTS, {
     variables: queryVariables,
     skip: queryVariables.execution === null,
     pollInterval: DEFAULT_POLL_INTERVAL,

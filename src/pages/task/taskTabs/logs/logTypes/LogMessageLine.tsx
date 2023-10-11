@@ -1,20 +1,26 @@
 import { useMemo } from "react";
-import AnsiUp from "ansi_up";
-import { format } from "date-fns";
+import { AnsiUp } from "ansi_up";
+import { format, utcToZonedTime } from "date-fns-tz";
 import parse from "html-react-parser";
 import linkifyHtml from "linkify-html";
 import { LogMessageFragment } from "gql/generated/types";
+import { useUserTimeZone } from "hooks";
 import { getLogLineWrapper } from "./logMessageLine/LogLines";
 
-const FORMAT_STR = "yyyy/MM/d, HH:mm:ss.SSS";
+const FORMAT_STR = "yyyy/MM/dd HH:mm:ss.SSS";
 const ansiUp = new AnsiUp();
 
-export const LogMessageLine: React.VFC<LogMessageFragment> = ({
+export const LogMessageLine: React.FC<LogMessageFragment> = ({
   message,
   severity,
   timestamp,
 }) => {
-  const time = timestamp ? `[${format(new Date(timestamp), FORMAT_STR)}] ` : "";
+  const tz = useUserTimeZone();
+  const time = timestamp
+    ? `[${format(new Date(utcToZonedTime(timestamp, tz)), FORMAT_STR, {
+        timeZone: tz,
+      })}] `
+    : "";
   const LogLineWrapper = getLogLineWrapper(severity);
   const memoizedLogLine = useMemo(() => {
     const render = linkifyHtml(ansiUp.ansi_to_html(message), {

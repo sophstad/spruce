@@ -6,7 +6,7 @@ import {
   TaskNamesForBuildVariantQuery,
   TaskNamesForBuildVariantQueryVariables,
 } from "gql/generated/types";
-import { GET_TASK_NAMES_FOR_BUILD_VARIANT } from "gql/queries";
+import { TASK_NAMES_FOR_BUILD_VARIANT } from "gql/queries";
 import { useQueryParam } from "hooks/useQueryParam";
 import { HistoryQueryParams } from "types/history";
 
@@ -15,7 +15,7 @@ interface TaskSelectorProps {
   buildVariant: string;
 }
 
-const TaskSelector: React.VFC<TaskSelectorProps> = ({
+const TaskSelector: React.FC<TaskSelectorProps> = ({
   buildVariant,
   projectIdentifier,
 }) => {
@@ -29,7 +29,7 @@ const TaskSelector: React.VFC<TaskSelectorProps> = ({
   const { data, loading } = useQuery<
     TaskNamesForBuildVariantQuery,
     TaskNamesForBuildVariantQueryVariables
-  >(GET_TASK_NAMES_FOR_BUILD_VARIANT, {
+  >(TASK_NAMES_FOR_BUILD_VARIANT, {
     variables: {
       projectIdentifier,
       buildVariant,

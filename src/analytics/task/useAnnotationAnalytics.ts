@@ -1,15 +1,14 @@
 import { useQuery } from "@apollo/client";
 import get from "lodash/get";
 import { useParams, useLocation } from "react-router-dom";
-import { addPageAction, Properties, Analytics } from "analytics/addPageAction";
-import { useGetUserQuery } from "analytics/useGetUserQuery";
+import { useAnalyticsRoot } from "analytics/useAnalyticsRoot";
 import {
   BuildBaronQuery,
   BuildBaronQueryVariables,
   AnnotationEventDataQuery,
   AnnotationEventDataQueryVariables,
 } from "gql/generated/types";
-import { GET_ANNOTATION_EVENT_DATA, GET_BUILD_BARON } from "gql/queries";
+import { ANNOTATION_EVENT_DATA, BUILD_BARON } from "gql/queries";
 import { RequiredQueryParams } from "types/task";
 import { queryString } from "utils";
 
@@ -28,14 +27,7 @@ type Action =
   | { name: "Add Task Annotation Issue" }
   | { name: "Add Task Annotation Suspected Issue" };
 
-interface P extends Properties {
-  taskId: string;
-}
-
-interface AnnotationAnalytics extends Analytics<Action> {}
-
-export const useAnnotationAnalytics = (): AnnotationAnalytics => {
-  const userId = useGetUserQuery();
+export const useAnnotationAnalytics = () => {
   const { id } = useParams<{ id: string }>();
 
   const location = useLocation();
@@ -44,13 +36,13 @@ export const useAnnotationAnalytics = (): AnnotationAnalytics => {
   const { data: eventData } = useQuery<
     AnnotationEventDataQuery,
     AnnotationEventDataQueryVariables
-  >(GET_ANNOTATION_EVENT_DATA, {
+  >(ANNOTATION_EVENT_DATA, {
     variables: { taskId: id, execution },
     fetchPolicy: "cache-first",
   });
 
   const { data: bbData } = useQuery<BuildBaronQuery, BuildBaronQueryVariables>(
-    GET_BUILD_BARON,
+    BUILD_BARON,
     {
       variables: { taskId: id, execution },
       fetchPolicy: "cache-first",
@@ -63,15 +55,10 @@ export const useAnnotationAnalytics = (): AnnotationAnalytics => {
     "buildBaron.buildBaronConfigured",
     undefined
   );
-  const sendEvent: AnnotationAnalytics["sendEvent"] = (action) => {
-    addPageAction<Action, P>(action, {
-      object: "Annotations",
-      userId,
-      taskId: id,
-      annotation,
-      bbConfigured,
-    });
-  };
 
-  return { sendEvent };
+  return useAnalyticsRoot<Action>("Annotations", {
+    taskId: id,
+    annotation,
+    bbConfigured,
+  });
 };

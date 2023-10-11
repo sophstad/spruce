@@ -112,6 +112,7 @@ export const getFormSchema = (): ReturnType<GetFormSchema> => ({
       "ui:data-cy": "parsley-filter-list",
       items: {
         "ui:displayTitle": "New Parsley Filter",
+        "ui:label": false,
         expression: {
           "ui:data-cy": "parsley-filter-expression",
         },
@@ -119,13 +120,13 @@ export const getFormSchema = (): ReturnType<GetFormSchema> => ({
           "ui:widget": widgets.SegmentedControlWidget,
           "ui:aria-controls": ["case-insensitive", "case-sensitive"],
           "ui:data-cy": "parsley-filter-case-sensitivity",
-          "ui:sizeVariant": "small",
+          "ui:sizeVariant": "xsmall",
         },
         exactMatch: {
           "ui:widget": widgets.SegmentedControlWidget,
           "ui:aria-controls": ["exact-match", "inverse-match"],
           "ui:data-cy": "parsley-filter-match-type",
-          "ui:sizeVariant": "small",
+          "ui:sizeVariant": "xsmall",
         },
       },
     },

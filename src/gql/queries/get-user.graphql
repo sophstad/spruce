@@ -1,7 +1,0 @@
-query User {
-  user {
-    displayName
-    emailAddress
-    userId
-  }
-}

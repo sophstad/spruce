@@ -21,11 +21,11 @@ import {
   LogMessageFragment,
 } from "gql/generated/types";
 import {
-  GET_AGENT_LOGS,
-  GET_TASK_EVENT_LOGS,
-  GET_SYSTEM_LOGS,
-  GET_TASK_LOGS,
-  GET_ALL_LOGS,
+  AGENT_LOGS,
+  TASK_EVENT_LOGS,
+  SYSTEM_LOGS,
+  TASK_LOGS,
+  ALL_LOGS,
 } from "gql/queries";
 import { usePolling } from "hooks";
 import { RequiredQueryParams } from "types/task";
@@ -47,7 +47,7 @@ interface Props {
   setNoLogs: (noLogs: boolean) => void;
 }
 
-export const AllLog: React.VFC<Props> = (props) => {
+export const AllLog: React.FC<Props> = (props) => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const parsed = parseQueryString(location.search);
@@ -56,7 +56,7 @@ export const AllLog: React.VFC<Props> = (props) => {
   const { data, error, loading, refetch, startPolling, stopPolling } = useQuery<
     AllLogsQuery,
     AllLogsQueryVariables
-  >(GET_ALL_LOGS, {
+  >(ALL_LOGS, {
     variables: { id, execution: selectedExecution },
     pollInterval: DEFAULT_POLL_INTERVAL,
   });
@@ -75,7 +75,7 @@ export const AllLog: React.VFC<Props> = (props) => {
   });
 };
 
-export const EventLog: React.VFC<Props> = (props) => {
+export const EventLog: React.FC<Props> = (props) => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const parsed = parseQueryString(location.search);
@@ -83,7 +83,7 @@ export const EventLog: React.VFC<Props> = (props) => {
   const { data, error, loading, refetch, startPolling, stopPolling } = useQuery<
     TaskEventLogsQuery,
     TaskEventLogsQueryVariables
-  >(GET_TASK_EVENT_LOGS, {
+  >(TASK_EVENT_LOGS, {
     variables: { id, execution: selectedExecution },
     pollInterval: DEFAULT_POLL_INTERVAL,
   });
@@ -105,7 +105,7 @@ export const EventLog: React.VFC<Props> = (props) => {
   });
 };
 
-export const SystemLog: React.VFC<Props> = (props) => {
+export const SystemLog: React.FC<Props> = (props) => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const parsed = parseQueryString(location.search);
@@ -113,7 +113,7 @@ export const SystemLog: React.VFC<Props> = (props) => {
   const { data, error, loading, refetch, startPolling, stopPolling } = useQuery<
     SystemLogsQuery,
     SystemLogsQueryVariables
-  >(GET_SYSTEM_LOGS, {
+  >(SYSTEM_LOGS, {
     variables: { id, execution: selectedExecution },
     pollInterval: DEFAULT_POLL_INTERVAL,
   });
@@ -131,7 +131,7 @@ export const SystemLog: React.VFC<Props> = (props) => {
   });
 };
 
-export const AgentLog: React.VFC<Props> = (props) => {
+export const AgentLog: React.FC<Props> = (props) => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const parsed = parseQueryString(location.search);
@@ -139,7 +139,7 @@ export const AgentLog: React.VFC<Props> = (props) => {
   const { data, error, loading, refetch, startPolling, stopPolling } = useQuery<
     AgentLogsQuery,
     AgentLogsQueryVariables
-  >(GET_AGENT_LOGS, {
+  >(AGENT_LOGS, {
     variables: { id, execution: selectedExecution },
     pollInterval: DEFAULT_POLL_INTERVAL,
   });
@@ -157,7 +157,7 @@ export const AgentLog: React.VFC<Props> = (props) => {
   });
 };
 
-export const TaskLog: React.VFC<Props> = (props) => {
+export const TaskLog: React.FC<Props> = (props) => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const parsed = parseQueryString(location.search);
@@ -165,7 +165,7 @@ export const TaskLog: React.VFC<Props> = (props) => {
   const { data, error, loading, refetch, startPolling, stopPolling } = useQuery<
     TaskLogsQuery,
     TaskLogsQueryVariables
-  >(GET_TASK_LOGS, {
+  >(TASK_LOGS, {
     variables: { id, execution: selectedExecution },
     pollInterval: DEFAULT_POLL_INTERVAL,
   });
@@ -182,11 +182,11 @@ export const TaskLog: React.VFC<Props> = (props) => {
   });
 };
 
-const useRenderBody: React.VFC<{
+const useRenderBody: React.FC<{
   loading: boolean;
   error: ApolloError;
   data: (TaskEventLogEntryType | LogMessageType)[];
-  LogContainer?: React.VFC<{ children: React.ReactNode }>;
+  LogContainer?: React.FC<{ children: React.ReactNode }>;
   setNoLogs: (noLogs: boolean) => void;
 }> = ({
   LogContainer = ({ children }) => <StyledPre>{children}</StyledPre>,

@@ -1,7 +1,15 @@
+import { useMemo } from "react";
 import { ApolloError } from "@apollo/client";
 import styled from "@emotion/styled";
-import { Table, TableHeader, Row, Cell } from "@leafygreen-ui/table";
-import { Subtitle } from "@leafygreen-ui/typography";
+import {
+  V10Table as Table,
+  V10TableHeader as TableHeader,
+  V10HeaderRow as HeaderRow,
+  V10Row as Row,
+  V10Cell as Cell,
+  V11Adapter,
+} from "@leafygreen-ui/table/new";
+import { Subtitle, SubtitleProps } from "@leafygreen-ui/typography";
 import { useHostsTableAnalytics } from "analytics";
 import PageSizeSelector, {
   usePageSizeSelector,
@@ -13,7 +21,7 @@ import { useDateFormat } from "hooks";
 import { getHostEventString } from "pages/host/getHostEventString";
 import { HostCard } from "pages/host/HostCard";
 
-export const HostTable: React.VFC<{
+export const HostTable: React.FC<{
   loading: boolean;
   eventData: HostEventsQuery;
   error: ApolloError;
@@ -25,8 +33,10 @@ export const HostTable: React.VFC<{
   const hostsTableAnalytics = useHostsTableAnalytics(isHostPage);
   const setPageSize = usePageSizeSelector();
   const getDateCopy = useDateFormat();
-  const hostEvents = eventData?.hostEvents;
-  const logEntries = hostEvents?.eventLogEntries;
+  const logEntries = useMemo(
+    () => eventData?.hostEvents?.eventLogEntries ?? [],
+    [eventData?.hostEvents?.eventLogEntries]
+  );
 
   const handlePageSizeChange = (pageSize: number): void => {
     setPageSize(pageSize);
@@ -51,28 +61,32 @@ export const HostTable: React.VFC<{
           />
         </PaginationWrapper>
       </TableTitle>
-      <Table
-        data-cy="host-events-table"
-        data={logEntries}
-        columns={[
-          <TableHeader key="date" dataType="date" label="Date" />,
-          <TableHeader key="event" label="Event" />,
-        ]}
-      >
-        {({ datum }) => (
-          <Row data-cy={`event-type-${datum.eventType}`} key={datum.id}>
-            <Cell data-cy={`${datum.eventType}-time`}>
-              {getDateCopy(datum.timestamp)}
-            </Cell>
-            <Cell>{getHostEventString(datum.eventType, datum.data)}</Cell>
-          </Row>
-        )}
-      </Table>
+      <V11Adapter shouldAlternateRowColor>
+        <Table
+          data-cy="host-events-table"
+          data={logEntries}
+          columns={
+            <HeaderRow>
+              <TableHeader key="date" dataType="date" label="Date" />
+              <TableHeader key="event" label="Event" />
+            </HeaderRow>
+          }
+        >
+          {({ datum }) => (
+            <Row data-cy={`event-type-${datum.eventType}`} key={datum.id}>
+              <Cell data-cy={`${datum.eventType}-time`}>
+                {getDateCopy(datum.timestamp)}
+              </Cell>
+              <Cell>{getHostEventString(datum.eventType, datum.data)}</Cell>
+            </Row>
+          )}
+        </Table>
+      </V11Adapter>
     </HostCard>
   );
 };
 
-const StyledSubtitle = styled(Subtitle)`
+const StyledSubtitle = styled(Subtitle)<SubtitleProps>`
   margin-bottom: 20px;
   margin-top: ${size.s};
 `;

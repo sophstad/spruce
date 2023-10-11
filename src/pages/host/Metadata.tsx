@@ -8,14 +8,12 @@ import {
   MetadataTitle,
 } from "components/MetadataCard";
 import { StyledLink } from "components/styles";
-import { getTaskRoute } from "constants/routes";
+import { getDistroSettingsRoute, getTaskRoute } from "constants/routes";
 import { HostQuery } from "gql/generated/types";
-import { environmentVariables } from "utils";
 
 const { gray } = palette;
-const { getUiUrl } = environmentVariables;
 
-export const Metadata: React.VFC<{
+export const Metadata: React.FC<{
   loading: boolean;
   host: HostQuery["host"];
   error: ApolloError;
@@ -35,7 +33,7 @@ export const Metadata: React.VFC<{
   const { id: runningTaskId, name: runningTaskName } = runningTask ?? {};
 
   const taskLink = getTaskRoute(runningTaskId);
-  const distroLink = `${getUiUrl()}/distros##${distroId}`;
+  const distroLink = getDistroSettingsRoute(distroId);
 
   return (
     <MetadataCard error={error} loading={loading}>

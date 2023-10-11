@@ -14,7 +14,7 @@ import {
   CodeChangesQueryVariables,
 } from "gql/generated/types";
 import { ENQUEUE_PATCH } from "gql/mutations";
-import { GET_CODE_CHANGES } from "gql/queries";
+import { CODE_CHANGES } from "gql/queries";
 import { commits } from "utils";
 
 const { shouldPreserveCommits } = commits;
@@ -26,7 +26,7 @@ interface EnqueueProps {
   onFinished: () => void;
   refetchQueries: string[];
 }
-export const EnqueuePatchModal: React.VFC<EnqueueProps> = ({
+export const EnqueuePatchModal: React.FC<EnqueueProps> = ({
   commitMessage,
   onFinished,
   patchId,
@@ -42,7 +42,7 @@ export const EnqueuePatchModal: React.VFC<EnqueueProps> = ({
   const { data, previousData } = useQuery<
     CodeChangesQuery,
     CodeChangesQueryVariables
-  >(GET_CODE_CHANGES, {
+  >(CODE_CHANGES, {
     variables: { id: patchId },
     skip: !visible,
   });

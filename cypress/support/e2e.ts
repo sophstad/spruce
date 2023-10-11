@@ -76,19 +76,24 @@ declare global {
        * Custom command to enter get an input by its label
        * @example cy.getInputBylabel("Some Label")
        */
-      getInputByLabel(label: string): Chainable<Element>;
+      getInputByLabel(label: string | RegExp): Chainable<Element>;
       /**
        * Custom command to select an option from a leafygreen select component by label
        * @param label The label of the select component
        * @param option The option text to select
        * @example cy.selectLGOption("Some Label", "Some Option")
        */
-      selectLGOption(label: string, option: string): void;
+      selectLGOption(label: string, option: string | RegExp): void;
       /**
        * Custom command to navigate to login page and login.
        * @example cy.login()
        */
       login(): void;
+      /**
+       * Custom command to log out of the application.
+       * @example cy.logout()
+       */
+      logout(): void;
       /**
        * Custom command to open an antd table filter associated with the
        * the supplied column number
@@ -109,6 +114,12 @@ declare global {
         message?: string,
         shouldClose?: boolean
       ): void;
+      /**
+       * Custom command to overwrite a GQL response
+       * @param operationName - The operation name of the query
+       * @param body - The replacement response body
+       */
+      overwriteGQL(operationName: string, body: any);
     }
   }
 }
@@ -118,9 +129,7 @@ beforeEach(() => {
   cy.setCookie(bannerCookie, "true");
   cy.setCookie(CY_DISABLE_COMMITS_WELCOME_MODAL, "true");
   cy.setCookie(CY_DISABLE_NEW_USER_WELCOME_MODAL, "true");
-  cy.setCookie(konamiCookie, "true");
   cy.setCookie(SLACK_NOTIFICATION_BANNER, "true");
 });
 
 const bannerCookie = "This is an important notification";
-const konamiCookie = "seen-konami-code";

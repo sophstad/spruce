@@ -4,7 +4,7 @@ import { ClassNames } from "@emotion/react";
 import styled from "@emotion/styled";
 import Button, { Variant } from "@leafygreen-ui/button";
 import Modal from "@leafygreen-ui/modal";
-import { Subtitle } from "@leafygreen-ui/typography";
+import { Subtitle, SubtitleProps } from "@leafygreen-ui/typography";
 import { Carousel } from "antd";
 import { CarouselRef } from "antd/es/carousel";
 import { StyledLink as Link } from "components/styles";
@@ -26,7 +26,7 @@ interface WelcomeModalProps {
   carouselCards: CardType[];
 }
 
-const WelcomeModal: React.VFC<WelcomeModalProps> = ({
+const WelcomeModal: React.FC<WelcomeModalProps> = ({
   carouselCards,
   param,
   title,
@@ -78,7 +78,6 @@ const WelcomeModal: React.VFC<WelcomeModalProps> = ({
             z-index: ${zIndex.max_do_not_use};
           `}
           size="large"
-          initialFocus=".slick-active"
         >
           {title && <CardTitle>{title}</CardTitle>}
           <Carousel
@@ -131,7 +130,7 @@ const StyledLink = styled(Link)`
   margin-right: ${size.s};
 `;
 
-const CardTitle = styled(Subtitle)`
+const CardTitle = styled(Subtitle)<SubtitleProps>`
   display: flex;
   justify-content: center;
   margin-bottom: ${size.s};

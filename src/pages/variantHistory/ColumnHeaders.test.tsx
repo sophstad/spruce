@@ -5,7 +5,7 @@ import {
   TaskNamesForBuildVariantQuery,
   TaskNamesForBuildVariantQueryVariables,
 } from "gql/generated/types";
-import { GET_TASK_NAMES_FOR_BUILD_VARIANT } from "gql/queries";
+import { TASK_NAMES_FOR_BUILD_VARIANT } from "gql/queries";
 import {
   renderWithRouterMatch as render,
   screen,
@@ -119,6 +119,7 @@ describe("columnHeaders (Variant History)", () => {
   });
 
   it("should show a tooltip with the full name when hovering over a truncated task name", async () => {
+    const user = userEvent.setup();
     const { Component } = RenderFakeToastContext(
       <ColumnHeaders projectIdentifier="evergreen" variantName="some_variant" />
     );
@@ -135,7 +136,7 @@ describe("columnHeaders (Variant History)", () => {
     await waitFor(() => {
       expect(screen.queryAllByDataCy("loading-header-cell")).toHaveLength(0);
     });
-    userEvent.hover(screen.queryByText(trimmedTaskName));
+    await user.hover(screen.queryByText(trimmedTaskName));
     await waitFor(() => {
       expect(screen.queryByText(longTaskName)).toBeVisible();
     });
@@ -149,7 +150,7 @@ const mock = (
   TaskNamesForBuildVariantQueryVariables
 > => ({
   request: {
-    query: GET_TASK_NAMES_FOR_BUILD_VARIANT,
+    query: TASK_NAMES_FOR_BUILD_VARIANT,
     variables: {
       projectIdentifier: "evergreen",
       buildVariant: "some_variant",

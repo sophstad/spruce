@@ -5,7 +5,7 @@ import {
   SuspectedIssuesQueryVariables,
   Annotation,
 } from "gql/generated/types";
-import { GET_JIRA_SUSPECTED_ISSUES } from "gql/queries";
+import { JIRA_SUSPECTED_ISSUES } from "gql/queries";
 import AnnotationTickets from "./AnnotationTickets";
 
 interface SuspectedIssuesProps {
@@ -17,7 +17,7 @@ interface SuspectedIssuesProps {
   annotation: Annotation;
 }
 
-const SuspectedIssues: React.VFC<SuspectedIssuesProps> = ({
+const SuspectedIssues: React.FC<SuspectedIssuesProps> = ({
   annotation,
   execution,
   selectedRowKey,
@@ -30,7 +30,7 @@ const SuspectedIssues: React.VFC<SuspectedIssuesProps> = ({
   const { data, loading } = useQuery<
     SuspectedIssuesQuery,
     SuspectedIssuesQueryVariables
-  >(GET_JIRA_SUSPECTED_ISSUES, {
+  >(JIRA_SUSPECTED_ISSUES, {
     variables: { taskId, execution },
     onError: (err) => {
       dispatchToast.error(

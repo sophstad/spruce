@@ -5,6 +5,7 @@ import Card from "@leafygreen-ui/card";
 import {
   InlineCode,
   Subtitle,
+  SubtitleProps,
   Body,
   Disclaimer,
 } from "@leafygreen-ui/typography";
@@ -20,14 +21,14 @@ import {
   ClientConfigQueryVariables,
   ClientBinary,
 } from "gql/generated/types";
-import { GET_CLIENT_CONFIG } from "gql/queries";
+import { CLIENT_CONFIG } from "gql/queries";
 import { CardType } from "types/leafygreen";
 
 export const DownloadCard = () => {
   const { data, loading } = useQuery<
     ClientConfigQuery,
     ClientConfigQueryVariables
-  >(GET_CLIENT_CONFIG);
+  >(CLIENT_CONFIG);
 
   if (loading) {
     return <Skeleton active paragraph={{ rows: 6 }} />;
@@ -75,7 +76,7 @@ interface CliDownloadBoxProps {
   link: string | null;
   description?: string;
 }
-const CliDownloadBox: React.VFC<CliDownloadBoxProps> = ({
+const CliDownloadBox: React.FC<CliDownloadBoxProps> = ({
   description,
   link,
   title,
@@ -106,7 +107,7 @@ const CliDownloadBox: React.VFC<CliDownloadBoxProps> = ({
 interface ExpandableLinkContentsProps {
   clientBinaries: ClientBinary[];
 }
-const ExpandableLinkContents: React.VFC<ExpandableLinkContentsProps> = ({
+const ExpandableLinkContents: React.FC<ExpandableLinkContentsProps> = ({
   clientBinaries,
 }) => {
   const { sendEvent } = usePreferencesAnalytics();
@@ -161,7 +162,7 @@ const CliDownloadButton = styled(Button)`
   margin-top: ${size.xs};
 `;
 
-const CliDownloadTitle = styled(Subtitle)`
+const CliDownloadTitle = styled(Subtitle)<SubtitleProps>`
   font-weight: bold;
 `;
 

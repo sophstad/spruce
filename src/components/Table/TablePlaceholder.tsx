@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
-import { glyphs } from "@leafygreen-ui/icon";
 import { palette } from "@leafygreen-ui/palette";
-import Icon from "components/Icon";
+import Icon, { glyphs } from "components/Icon";
 import { size } from "constants/tokens";
 
 const { gray } = palette;
@@ -12,7 +11,7 @@ interface Props {
   spin?: boolean;
 }
 
-export const TablePlaceholder: React.VFC<Props> = ({
+export const TablePlaceholder: React.FC<Props> = ({
   glyph = "CurlyBraces",
   message,
   spin = false,

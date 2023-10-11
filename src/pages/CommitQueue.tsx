@@ -14,19 +14,19 @@ import {
   CommitQueueQuery,
   CommitQueueQueryVariables,
 } from "gql/generated/types";
-import { GET_COMMIT_QUEUE } from "gql/queries";
+import { COMMIT_QUEUE } from "gql/queries";
 import { formatZeroIndexForDisplay } from "utils/numbers";
 import { CommitQueueCard } from "./commitqueue/CommitQueueCard";
 
 const { gray } = palette;
 
-export const CommitQueue: React.VFC = () => {
+export const CommitQueue: React.FC = () => {
   const { projectIdentifier } = useParams<{ projectIdentifier: string }>();
   const dispatchToast = useToastContext();
   const { data, loading } = useQuery<
     CommitQueueQuery,
     CommitQueueQueryVariables
-  >(GET_COMMIT_QUEUE, {
+  >(COMMIT_QUEUE, {
     variables: { projectIdentifier },
     fetchPolicy: "cache-and-network",
     onError: (err) => {

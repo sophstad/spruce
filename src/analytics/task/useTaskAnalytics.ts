@@ -1,11 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { useParams, useLocation } from "react-router-dom";
-import {
-  addPageAction,
-  Properties,
-  Analytics as A,
-} from "analytics/addPageAction";
-import { useGetUserQuery } from "analytics/useGetUserQuery";
+import { useAnalyticsRoot } from "analytics/useAnalyticsRoot";
 import {
   SaveSubscriptionForUserMutationVariables,
   TaskQuery,
@@ -13,7 +8,7 @@ import {
   TaskSortCategory,
   TestSortCategory,
 } from "gql/generated/types";
-import { GET_TASK } from "gql/queries";
+import { TASK } from "gql/queries";
 import { CommitType } from "pages/task/actionButtons/previousCommits/types";
 import { RequiredQueryParams, LogTypes } from "types/task";
 import { queryString } from "utils";
@@ -70,29 +65,16 @@ type Action =
   | { name: "Click Trace Metrics Link" }
   | { name: "Submit Previous Commit Selector"; type: CommitType };
 
-interface P extends Properties {
-  taskId: string;
-  taskStatus: string;
-  failedTestCount: number;
-  execution: number;
-  isLatestExecution: string;
-}
-export interface Analytics extends A<Action> {}
-
-export const useTaskAnalytics = (): Analytics => {
-  const userId = useGetUserQuery();
+export const useTaskAnalytics = () => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
 
   const parsed = parseQueryString(location.search);
   const execution = Number(parsed[RequiredQueryParams.Execution]);
-  const { data: eventData } = useQuery<TaskQuery, TaskQueryVariables>(
-    GET_TASK,
-    {
-      variables: { taskId: id, execution },
-      fetchPolicy: "cache-first",
-    }
-  );
+  const { data: eventData } = useQuery<TaskQuery, TaskQueryVariables>(TASK, {
+    variables: { taskId: id, execution },
+    fetchPolicy: "cache-first",
+  });
 
   const {
     failedTestCount,
@@ -100,17 +82,12 @@ export const useTaskAnalytics = (): Analytics => {
     status: taskStatus,
   } = eventData?.task || {};
   const isLatestExecution = latestExecution === execution;
-  const sendEvent: Analytics["sendEvent"] = (action) => {
-    addPageAction<Action, P>(action, {
-      object: "Task",
-      userId,
-      taskStatus,
-      execution,
-      isLatestExecution: isLatestExecution.toString(),
-      taskId: id,
-      failedTestCount,
-    });
-  };
 
-  return { sendEvent };
+  return useAnalyticsRoot<Action>("Task", {
+    taskStatus,
+    execution,
+    isLatestExecution: isLatestExecution.toString(),
+    taskId: id,
+    failedTestCount,
+  });
 };

@@ -14,7 +14,7 @@ module.exports = {
   modulePaths: ["<rootDir>/src"],
   resetMocks: true,
   setupFiles: ["react-app-polyfill/jsdom", "jest-canvas-mock"],
-  setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
+  setupFilesAfterEnv: ["<rootDir>/config/jest/setupTests.ts"],
   snapshotSerializers: ["@emotion/jest/serializer"],
   testEnvironment: "jsdom",
   testMatch: ["<rootDir>/{src,scripts}/**/*.{spec,test}.{js,jsx,ts,tsx}"],
@@ -27,6 +27,8 @@ module.exports = {
   },
   transformIgnorePatterns: [
     `<rootDir>/node_modules/(?!${[
+      // jest doesn't officially support ESM so ignore ansi_up: https://jestjs.io/docs/ecmascript-modules
+      "ansi_up",
       "antd",
       // The following modules are all related to the query-string package.
       "query-string",
@@ -40,7 +42,5 @@ module.exports = {
     "jest-watch-typeahead/testname",
   ],
   globalSetup: "<rootDir>/global-setup.js",
-  globals: {
-    APP_VERSION: JSON.stringify(process.env.npm_package_version),
-  },
+  testTimeout: 30000,
 };

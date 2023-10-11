@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import Button from "@leafygreen-ui/button";
 import {
   Body,
+  BodyProps,
   Description,
   Subtitle,
   SubtitleProps,
@@ -16,7 +17,7 @@ import {
   CodeChangesQueryVariables,
   FileDiffsFragment,
 } from "gql/generated/types";
-import { GET_CODE_CHANGES } from "gql/queries";
+import { CODE_CHANGES } from "gql/queries";
 import { commits } from "utils";
 import { formatZeroIndexForDisplay } from "utils/numbers";
 
@@ -25,11 +26,11 @@ const { bucketByCommit, shouldPreserveCommits } = commits;
 interface CodeChangesProps {
   patchId: string;
 }
-export const CodeChanges: React.VFC<CodeChangesProps> = ({ patchId }) => {
+export const CodeChanges: React.FC<CodeChangesProps> = ({ patchId }) => {
   const { data, error, loading } = useQuery<
     CodeChangesQuery,
     CodeChangesQueryVariables
-  >(GET_CODE_CHANGES, {
+  >(CODE_CHANGES, {
     variables: { id: patchId },
   });
   const { moduleCodeChanges } = data?.patch ?? {};
@@ -130,7 +131,7 @@ const TitleContainer = styled.div`
   display: flex;
 `;
 
-const CommitTitle = styled(Body)`
+const CommitTitle = styled(Body)<BodyProps>`
   flex-shrink: 0;
   font-size: 15px;
   font-weight: bold;

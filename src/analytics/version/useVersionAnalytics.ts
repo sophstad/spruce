@@ -1,13 +1,12 @@
 import { useQuery } from "@apollo/client";
-import { addPageAction, Properties, Analytics } from "analytics/addPageAction";
-import { useGetUserQuery } from "analytics/useGetUserQuery";
+import { useAnalyticsRoot } from "analytics/useAnalyticsRoot";
 import {
   SaveSubscriptionForUserMutationVariables,
   VersionQuery,
   VersionQueryVariables,
   TaskSortCategory,
 } from "gql/generated/types";
-import { GET_VERSION } from "gql/queries";
+import { VERSION } from "gql/queries";
 
 type Action =
   | { name: "Filter Tasks"; filterBy: string }
@@ -51,17 +50,9 @@ type Action =
   | { name: "Click Github Commit Link" }
   | { name: "Open Schedule Tasks Modal" };
 
-interface V extends Properties {
-  versionId: string;
-  versionStatus: string;
-}
-interface VersionAnalytics extends Analytics<Action> {}
-
-export const useVersionAnalytics = (id: string): VersionAnalytics => {
-  const userId = useGetUserQuery();
-
+export const useVersionAnalytics = (id: string) => {
   const { data: eventData } = useQuery<VersionQuery, VersionQueryVariables>(
-    GET_VERSION,
+    VERSION,
     {
       variables: { id },
       fetchPolicy: "cache-first",
@@ -69,14 +60,8 @@ export const useVersionAnalytics = (id: string): VersionAnalytics => {
   );
   const { status } = eventData?.version || {};
 
-  const sendEvent: VersionAnalytics["sendEvent"] = (action) => {
-    addPageAction<Action, V>(action, {
-      object: "Version",
-      userId,
-      versionStatus: status,
-      versionId: id,
-    });
-  };
-
-  return { sendEvent };
+  return useAnalyticsRoot<Action>("Version", {
+    versionStatus: status,
+    versionId: id,
+  });
 };

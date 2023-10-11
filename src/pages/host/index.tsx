@@ -23,7 +23,7 @@ import {
   HostEventsQuery,
   HostEventsQueryVariables,
 } from "gql/generated/types";
-import { GET_HOST, GET_HOST_EVENTS } from "gql/queries/index";
+import { HOST, HOST_EVENTS } from "gql/queries/index";
 import { HostTable } from "pages/host/HostTable";
 import { Metadata } from "pages/host/Metadata";
 import { HostStatus } from "types/host";
@@ -31,7 +31,7 @@ import { url } from "utils";
 
 const { getLimitFromSearch, getPageFromSearch } = url;
 
-const Host: React.VFC = () => {
+const Host: React.FC = () => {
   const dispatchToast = useToastContext();
   const { id } = useParams<{ id: string }>();
   // Query host data
@@ -39,7 +39,7 @@ const Host: React.VFC = () => {
     data: hostData,
     error,
     loading: hostMetaDataLoading,
-  } = useQuery<HostQuery, HostQueryVariables>(GET_HOST, {
+  } = useQuery<HostQuery, HostQueryVariables>(HOST, {
     variables: { id },
     onError: (err) => {
       dispatchToast.error(
@@ -63,7 +63,7 @@ const Host: React.VFC = () => {
   const { data: hostEventData, loading: hostEventLoading } = useQuery<
     HostEventsQuery,
     HostEventsQueryVariables
-  >(GET_HOST_EVENTS, {
+  >(HOST_EVENTS, {
     variables: { id, tag, page, limit },
   });
 
@@ -120,7 +120,7 @@ const Host: React.VFC = () => {
             }
           />
 
-          <PageLayout>
+          <PageLayout hasSider>
             <PageSider width={350}>
               <Metadata
                 loading={hostMetaDataLoading}

@@ -12,13 +12,8 @@ import {
 import { getSpruceConfigMock } from "gql/mocks/getSpruceConfig";
 import { getUserMock } from "gql/mocks/getUser";
 import { FILE_JIRA_TICKET } from "gql/mutations";
-import { GET_BUILD_BARON, GET_CREATED_TICKETS } from "gql/queries";
-import {
-  renderWithRouterMatch as render,
-  screen,
-  userEvent,
-  waitFor,
-} from "test_utils";
+import { BUILD_BARON, CREATED_TICKETS } from "gql/queries";
+import { renderWithRouterMatch as render, screen, userEvent } from "test_utils";
 import { ApolloMock } from "types/gql";
 import BuildBaronContent from "./BuildBaronContent";
 
@@ -60,6 +55,7 @@ describe("buildBaronContent", () => {
   });
 
   it("clicking on file a new ticket dispatches a toast", async () => {
+    const user = userEvent.setup();
     const { Component, dispatchToast } = RenderFakeToastContext(
       <MockedProvider mocks={buildBaronMocks}>
         <BuildBaronContent
@@ -76,17 +72,12 @@ describe("buildBaronContent", () => {
       route: `/task/${taskId}`,
       path: "/task/:id",
     });
-    userEvent.click(screen.queryByDataCy("file-ticket-button"));
-    await waitFor(() => {
-      expect(screen.getByDataCy("file-ticket-popconfirm")).toBeVisible();
-    });
-    userEvent.click(screen.getByText("Yes"));
-
-    await waitFor(() => {
-      expect(dispatchToast.success).toHaveBeenCalledWith(
-        "Successfully requested ticket"
-      );
-    });
+    await user.click(screen.queryByDataCy("file-ticket-button"));
+    expect(screen.getByDataCy("file-ticket-popconfirm")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Yes" }));
+    expect(dispatchToast.success).toHaveBeenCalledWith(
+      "Successfully requested ticket"
+    );
   });
 
   it("the correct JiraTicket rows are rendered in the component", () => {
@@ -203,7 +194,7 @@ const buildBaronQuery: BuildBaronQuery = {
 const getBuildBaronMock: ApolloMock<BuildBaronQuery, BuildBaronQueryVariables> =
   {
     request: {
-      query: GET_BUILD_BARON,
+      query: BUILD_BARON,
       variables: {
         taskId,
         execution,
@@ -236,7 +227,7 @@ const getJiraTicketsMock: ApolloMock<
   CreatedTicketsQueryVariables
 > = {
   request: {
-    query: GET_CREATED_TICKETS,
+    query: CREATED_TICKETS,
     variables: {
       taskId,
     },

@@ -23,7 +23,7 @@ import {
   MainlineCommitsForHistoryQuery,
   MainlineCommitsForHistoryQueryVariables,
 } from "gql/generated/types";
-import { GET_MAINLINE_COMMITS_FOR_HISTORY } from "gql/queries";
+import { MAINLINE_COMMITS_FOR_HISTORY } from "gql/queries";
 import { usePageTitle } from "hooks";
 import { string } from "utils";
 import { leaveBreadcrumb } from "utils/errorReporting";
@@ -35,7 +35,7 @@ const { HistoryTableProvider } = context;
 const { applyStrictRegex } = string;
 const { useJumpToCommit, useTestFilters } = hooks;
 
-const TaskHistoryContents: React.VFC = () => {
+const TaskHistoryContents: React.FC = () => {
   const { sendEvent } = useProjectHealthAnalytics({ page: "Task history" });
   const { projectIdentifier, taskName } = useParams<{
     projectIdentifier: string;
@@ -54,7 +54,7 @@ const TaskHistoryContents: React.VFC = () => {
   const { data, loading, refetch } = useQuery<
     MainlineCommitsForHistoryQuery,
     MainlineCommitsForHistoryQueryVariables
-  >(GET_MAINLINE_COMMITS_FOR_HISTORY, {
+  >(MAINLINE_COMMITS_FOR_HISTORY, {
     variables: {
       mainlineCommitsOptions: {
         projectIdentifier,

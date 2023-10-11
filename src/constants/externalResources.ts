@@ -24,6 +24,10 @@ export const gitTagAliasesDocumentationUrl = `${projectDistroSettingsDocumentati
 
 export const githubChecksAliasesDocumentationUrl = `${projectDistroSettingsDocumentationUrl}#github-checks-aliases`;
 
+export const githubMergeQueueDocumentationUrl = `${wikiBaseUrl}/Project-Configuration/Merge-Queue`;
+
+export const ignoredFilesDocumentationUrl = `${wikiBaseUrl}/Project-Configuration/Project-Configuration-Files#ignoring-changes-to-certain-files`;
+
 export const cliDocumentationUrl = `${wikiBaseUrl}/CLI`;
 
 export const windowsPasswordRulesURL =
@@ -34,9 +38,6 @@ export const getJiraBugUrl = (jiraHost: string) =>
 
 export const getJiraImprovementUrl = (jiraHost: string) =>
   `https://${jiraHost}/secure/CreateIssueDetails!init.jspa?pid=12787&issuetype=4&priority=4&labels=user-feedback`;
-
-export const konamiSoundTrackUrl =
-  "https://www.myinstants.com/media/sounds/mvssf-win.mp3";
 
 export const legacyRoutes = {
   distros: "/distros",
@@ -102,9 +103,6 @@ export const getParsleyTestLogURL = (buildId: string, testId: string) =>
 export const getParsleyBuildLogURL = (buildId: string) =>
   `${getParsleyUrl()}/resmoke/${buildId}/all`;
 
-export const getDistroPageUrl = (distroId: string) =>
-  `${getUiUrl()}/distros##${distroId}`;
-
 export const getHoneycombTraceUrl = (traceId: string, startTs: Date) =>
   `${getHoneycombBaseURL()}/datasets/evergreen-agent/trace?trace_id=${traceId}&trace_start_ts=${getUnixTime(
     new Date(startTs)
@@ -131,3 +129,5 @@ export const getHoneycombSystemMetricsUrl = (
     query
   )}&omitMissingValues`;
 };
+
+export const adminSettingsURL = `${getUiUrl()}/admin`;

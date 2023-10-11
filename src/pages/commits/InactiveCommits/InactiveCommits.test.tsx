@@ -35,16 +35,18 @@ describe("inactiveCommitButton", () => {
   });
 
   it("clicking on the button should open a tooltip", async () => {
+    const user = userEvent.setup();
     render(<RenderInactiveCommitButton versions={versions} />);
 
     expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeNull();
-    userEvent.click(screen.queryByDataCy("inactive-commits-button"));
-    await waitFor(() =>
-      expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeVisible()
-    );
+    await user.click(screen.queryByDataCy("inactive-commits-button"));
+    await waitFor(() => {
+      expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeVisible();
+    });
   });
 
   it("should show all inactive commits if there are 3 or less commits", async () => {
+    const user = userEvent.setup();
     render(
       <RenderInactiveCommitButton
         versions={versions.slice(0, MAX_COMMIT_COUNT - 1)}
@@ -52,10 +54,10 @@ describe("inactiveCommitButton", () => {
     );
 
     expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeNull();
-    userEvent.click(screen.queryByDataCy("inactive-commits-button"));
-    await waitFor(() =>
-      expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeVisible()
-    );
+    await user.click(screen.queryByDataCy("inactive-commits-button"));
+    await waitFor(() => {
+      expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeVisible();
+    });
     expect(screen.queryAllByDataCy("commit-text")).toHaveLength(
       MAX_COMMIT_COUNT - 1
     );
@@ -63,13 +65,14 @@ describe("inactiveCommitButton", () => {
   });
 
   it("should collapse commits if there are more than 3", async () => {
+    const user = userEvent.setup();
     render(<RenderInactiveCommitButton versions={versions} />);
 
     expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeNull();
-    userEvent.click(screen.queryByDataCy("inactive-commits-button"));
-    await waitFor(() =>
-      expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeVisible()
-    );
+    await user.click(screen.queryByDataCy("inactive-commits-button"));
+    await waitFor(() => {
+      expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeVisible();
+    });
     expect(screen.queryAllByDataCy("commit-text")).toHaveLength(
       MAX_COMMIT_COUNT
     );
@@ -77,21 +80,22 @@ describe("inactiveCommitButton", () => {
   });
 
   it("should open a modal when clicking on the hidden commits text", async () => {
+    const user = userEvent.setup();
     render(<RenderInactiveCommitButton versions={versions} />);
 
     expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeNull();
-    userEvent.click(screen.queryByDataCy("inactive-commits-button"));
-    await waitFor(() =>
-      expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeVisible()
-    );
+    await user.click(screen.queryByDataCy("inactive-commits-button"));
+    await waitFor(() => {
+      expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeVisible();
+    });
     expect(screen.queryAllByDataCy("commit-text")).toHaveLength(
       MAX_COMMIT_COUNT
     );
     expect(screen.queryByDataCy("inactive-commits-modal")).toBeNull();
-    userEvent.click(screen.queryByDataCy("hidden-commits"));
-    await waitFor(() =>
-      expect(screen.queryByDataCy("inactive-commits-modal")).toBeVisible()
-    );
+    await user.click(screen.queryByDataCy("hidden-commits"));
+    await waitFor(() => {
+      expect(screen.queryByDataCy("inactive-commits-modal")).toBeVisible();
+    });
   });
 
   it("should show unmatching label when there are filters applied", () => {
@@ -100,10 +104,21 @@ describe("inactiveCommitButton", () => {
       "6Unmatching"
     );
   });
+
+  it("should show ignored icon for ignored versions", async () => {
+    const user = userEvent.setup();
+    render(<RenderInactiveCommitButton versions={versions.slice(0, 1)} />);
+    expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeNull();
+    await user.click(screen.queryByDataCy("inactive-commits-button"));
+    await waitFor(() => {
+      expect(screen.queryByDataCy("inactive-commits-tooltip")).toBeVisible();
+    });
+    expect(screen.getByDataCy("ignored-icon")).toBeVisible();
+  });
 });
 
 const time = new Date("2021-06-16T23:38:13Z");
-const versions = [
+const versions: CommitRolledUpVersions = [
   {
     id: "1",
     createTime: time,
@@ -111,6 +126,7 @@ const versions = [
     order: 39365,
     author: "Mohamed Khelif",
     revision: "4137c33fa4a0d5c747a1115f0853b5f70e46f112",
+    ignored: true,
   },
   {
     id: "2",
@@ -119,6 +135,7 @@ const versions = [
     order: 39366,
     author: "Arjun Patel",
     revision: "4237c33fa4a0d5c747a1115f0853b5f70e46f113",
+    ignored: false,
   },
   {
     id: "3",
@@ -127,6 +144,7 @@ const versions = [
     order: 39365,
     author: "Mohamed Khelif",
     revision: "4337c33fa4a0d5c747a1115f0853b5f70e46f114",
+    ignored: false,
   },
   {
     id: "4",
@@ -135,6 +153,7 @@ const versions = [
     order: 39366,
     author: "Arjun Patel",
     revision: "4437c33fa4a0d5c747a1115f0853b5f70e46f115",
+    ignored: false,
   },
   {
     id: "5",
@@ -143,6 +162,7 @@ const versions = [
     order: 39365,
     author: "Elena Chen",
     revision: "4537c33fa4a0d5c747a1115f0853b5f70e46f116",
+    ignored: false,
   },
   {
     id: "6",
@@ -151,5 +171,6 @@ const versions = [
     order: 39366,
     author: "Sophie Stadler",
     revision: "4637c33fa4a0d5c747a1115f0853b5f70e46f117",
+    ignored: false,
   },
 ];

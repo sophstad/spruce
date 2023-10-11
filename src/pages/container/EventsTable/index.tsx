@@ -1,7 +1,15 @@
+import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import styled from "@emotion/styled";
-import { Table, TableHeader, Row, Cell } from "@leafygreen-ui/table";
-import { Subtitle } from "@leafygreen-ui/typography";
+import {
+  V10Table as Table,
+  V10TableHeader as TableHeader,
+  V10Row as Row,
+  V10Cell as Cell,
+  V10HeaderRow as HeaderRow,
+  V11Adapter,
+} from "@leafygreen-ui/table/new";
+import { Subtitle, SubtitleProps } from "@leafygreen-ui/typography";
 import { useLocation, useParams } from "react-router-dom";
 import PageSizeSelector, {
   usePageSizeSelector,
@@ -11,14 +19,14 @@ import { SiderCard, TableControlInnerRow } from "components/styles";
 import { size } from "constants/tokens";
 import { useToastContext } from "context/toast";
 import { PodEventsQuery, PodEventsQueryVariables } from "gql/generated/types";
-import { GET_POD_EVENTS } from "gql/queries";
+import { POD_EVENTS } from "gql/queries";
 import { useDateFormat } from "hooks";
 import { url } from "utils";
 import { getEventCopy } from "./util";
 
 const { getLimitFromSearch, getPageFromSearch } = url;
 
-const EventsTable: React.VFC<{}> = () => {
+const EventsTable: React.FC<{}> = () => {
   const getDateCopy = useDateFormat();
   const { search } = useLocation();
   const setPageSize = usePageSizeSelector();
@@ -29,7 +37,7 @@ const EventsTable: React.VFC<{}> = () => {
   const { data: podEventsData } = useQuery<
     PodEventsQuery,
     PodEventsQueryVariables
-  >(GET_POD_EVENTS, {
+  >(POD_EVENTS, {
     variables: { id, page, limit },
     onError: (err) => {
       dispatchToast.error(
@@ -37,7 +45,12 @@ const EventsTable: React.VFC<{}> = () => {
       );
     },
   });
-  const { count, eventLogEntries } = podEventsData?.pod.events ?? {};
+
+  const { count, eventLogEntries } = useMemo(
+    () => podEventsData?.pod.events ?? { eventLogEntries: [], count: 0 },
+    [podEventsData?.pod?.events]
+  );
+
   return (
     <SiderCard>
       <TableTitle>
@@ -56,28 +69,32 @@ const EventsTable: React.VFC<{}> = () => {
         </TableControlInnerRow>
       </TableTitle>
 
-      <Table
-        data-cy="container-events"
-        data={eventLogEntries}
-        columns={[
-          <TableHeader key="date" dataType="date" label="Date" />,
-          <TableHeader key="event" label="Event" />,
-        ]}
-      >
-        {({ datum }) => (
-          <Row data-cy={`event-type-${datum.eventType}`} key={datum.id}>
-            <Cell data-cy={`${datum.eventType}-time`}>
-              {getDateCopy(datum.timestamp)}
-            </Cell>
-            <Cell>{getEventCopy(datum)}</Cell>
-          </Row>
-        )}
-      </Table>
+      <V11Adapter shouldAlternateRowColor>
+        <Table
+          data-cy="container-events"
+          data={eventLogEntries}
+          columns={
+            <HeaderRow>
+              <TableHeader key="date" dataType="date" label="Date" />
+              <TableHeader key="event" label="Event" />
+            </HeaderRow>
+          }
+        >
+          {({ datum }) => (
+            <Row data-cy={`event-type-${datum.eventType}`} key={datum.id}>
+              <Cell data-cy={`${datum.eventType}-time`}>
+                {getDateCopy(datum.timestamp)}
+              </Cell>
+              <Cell>{getEventCopy(datum)}</Cell>
+            </Row>
+          )}
+        </Table>
+      </V11Adapter>
     </SiderCard>
   );
 };
 
-const StyledSubtitle = styled(Subtitle)`
+const StyledSubtitle = styled(Subtitle)<SubtitleProps>`
   margin: ${size.s} 0;
 `;
 

@@ -13,11 +13,7 @@ import {
 import { getSpruceConfigMock } from "gql/mocks/getSpruceConfig";
 import { getUserMock } from "gql/mocks/getUser";
 import { SPAWN_VOLUME } from "gql/mutations";
-import {
-  GET_MY_HOSTS,
-  GET_SUBNET_AVAILABILITY_ZONES,
-  GET_MY_VOLUMES,
-} from "gql/queries";
+import { MY_HOSTS, SUBNET_AVAILABILITY_ZONES, MY_VOLUMES } from "gql/queries";
 import {
   userEvent,
   renderWithRouterMatch as render,
@@ -65,9 +61,10 @@ describe("spawnVolumeModal", () => {
     expect(screen.queryByLabelText("Never expire")).not.toBeChecked();
     expect(screen.queryByDataCy("host-select")).toBeDisabled();
     expect(screen.queryByText("No hosts available.")).toBeVisible();
-  }, 10000);
+  });
 
   it("form submission succeeds with default values", async () => {
+    const user = userEvent.setup();
     const spawnVolumeMutation: ApolloMock<
       SpawnVolumeMutation,
       SpawnVolumeMutationVariables
@@ -99,17 +96,18 @@ describe("spawnVolumeModal", () => {
       expect(screen.queryByDataCy("spawn-volume-modal")).toBeVisible();
     });
     expect(screen.queryByLabelText("Never expire")).toBeEnabled();
-    userEvent.click(screen.queryByLabelText("Never expire"));
+    await user.click(screen.getByText("Never expire"));
 
     const spawnButton = screen.queryByRole("button", { name: "Spawn" });
     await waitFor(() => {
       expect(spawnButton).toBeEnabled();
     });
-    userEvent.click(spawnButton);
-    await waitFor(() => expect(dispatchToast.success).toHaveBeenCalledTimes(1));
-  }, 10000);
+    await user.click(spawnButton);
+    expect(dispatchToast.success).toHaveBeenCalledTimes(1);
+  });
 
   it("form submission succeeds after adjusting inputs", async () => {
+    const user = userEvent.setup();
     const spawnVolumeMutation: ApolloMock<
       SpawnVolumeMutation,
       SpawnVolumeMutationVariables
@@ -142,28 +140,28 @@ describe("spawnVolumeModal", () => {
     });
 
     // Modify form values
-    userEvent.clear(screen.queryByDataCy("volume-size-input"));
-    userEvent.type(screen.queryByDataCy("volume-size-input"), "24");
+    await user.clear(screen.queryByDataCy("volume-size-input"));
+    await user.type(screen.queryByDataCy("volume-size-input"), "24");
     expect(screen.queryByDataCy("volume-size-input")).toHaveValue("24");
     await selectLGOption("availability-zone-select", "us-east-1c");
     await selectLGOption("type-select", "st1");
     await selectLGOption("host-select", "i-00b212e96b3f91079");
     expect(screen.queryByLabelText("Never expire")).toBeEnabled();
-    userEvent.click(screen.queryByLabelText("Never expire"));
+    await user.click(screen.getByText("Never expire"));
 
     // Click spawn button
     const spawnButton = screen.queryByRole("button", { name: "Spawn" });
     await waitFor(() => {
       expect(spawnButton).toBeEnabled();
     });
-    userEvent.click(spawnButton);
-    await waitFor(() => expect(dispatchToast.success).toHaveBeenCalledTimes(1));
-  }, 10000);
+    await user.click(spawnButton);
+    expect(dispatchToast.success).toHaveBeenCalledTimes(1);
+  });
 });
 
 const myHostsMock: ApolloMock<MyHostsQuery, MyHostsQueryVariables> = {
   request: {
-    query: GET_MY_HOSTS,
+    query: MY_HOSTS,
     variables: {},
   },
   result: {
@@ -350,7 +348,7 @@ const myHostsMock: ApolloMock<MyHostsQuery, MyHostsQueryVariables> = {
 
 const myVolumesQueryMock: ApolloMock<MyVolumesQuery, MyVolumesQueryVariables> =
   {
-    request: { query: GET_MY_VOLUMES, variables: {} },
+    request: { query: MY_VOLUMES, variables: {} },
     result: {
       data: {
         myVolumes: [
@@ -408,7 +406,7 @@ const subnetZonesMock: ApolloMock<
   SubnetAvailabilityZonesQueryVariables
 > = {
   request: {
-    query: GET_SUBNET_AVAILABILITY_ZONES,
+    query: SUBNET_AVAILABILITY_ZONES,
     variables: {},
   },
   result: {

@@ -9,7 +9,7 @@ import {
   BuildVariantsForTaskNameQuery,
   BuildVariantsForTaskNameQueryVariables,
 } from "gql/generated/types";
-import { GET_BUILD_VARIANTS_FOR_TASK_NAME } from "gql/queries";
+import { BUILD_VARIANTS_FOR_TASK_NAME } from "gql/queries";
 import { array, string } from "utils";
 import { reportError } from "utils/errorReporting";
 
@@ -24,7 +24,7 @@ interface ColumnHeadersProps {
   taskName: string;
 }
 
-const ColumnHeaders: React.VFC<ColumnHeadersProps> = ({
+const ColumnHeaders: React.FC<ColumnHeadersProps> = ({
   projectIdentifier,
   taskName,
 }) => {
@@ -35,7 +35,7 @@ const ColumnHeaders: React.VFC<ColumnHeadersProps> = ({
   const { data: columnData, loading } = useQuery<
     BuildVariantsForTaskNameQuery,
     BuildVariantsForTaskNameQueryVariables
-  >(GET_BUILD_VARIANTS_FOR_TASK_NAME, {
+  >(BUILD_VARIANTS_FOR_TASK_NAME, {
     variables: {
       projectIdentifier,
       taskName,

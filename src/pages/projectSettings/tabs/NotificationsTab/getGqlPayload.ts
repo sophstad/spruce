@@ -106,7 +106,7 @@ export const getGqlPayload =
       .filter(({ type }) => allowedSelectors.has(type));
 
     return {
-      id: subscriptionData.id,
+      id: subscriptionData?.id,
       owner_type: "project",
       regex_selectors: regexData,
       resource_type: resourceType,

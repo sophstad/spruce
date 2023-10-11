@@ -23,7 +23,7 @@ import {
   VersionTasksQuery,
   VersionTasksQueryVariables,
 } from "gql/generated/types";
-import { GET_VERSION_TASKS } from "gql/queries";
+import { VERSION_TASKS } from "gql/queries";
 import { usePolling, useTaskStatuses } from "hooks";
 import { PatchStatus } from "types/patch";
 import { queryString, string } from "utils";
@@ -43,7 +43,7 @@ interface DownstreamProjectAccordionProps {
   parameters: Parameter[];
 }
 
-export const DownstreamProjectAccordion: React.VFC<
+export const DownstreamProjectAccordion: React.FC<
   DownstreamProjectAccordionProps
 > = ({
   baseVersionID,
@@ -139,7 +139,7 @@ export const DownstreamProjectAccordion: React.VFC<
   const { data, refetch, startPolling, stopPolling } = useQuery<
     VersionTasksQuery,
     VersionTasksQueryVariables
-  >(GET_VERSION_TASKS, {
+  >(VERSION_TASKS, {
     variables,
     fetchPolicy: "cache-and-network",
     onError: (err) => {
@@ -231,7 +231,7 @@ interface DownstreamMetadataProps {
   githash: string;
   parameters: Parameter[];
 }
-const DownstreamMetadata: React.VFC<DownstreamMetadataProps> = ({
+const DownstreamMetadata: React.FC<DownstreamMetadataProps> = ({
   baseVersionID,
   githash,
   parameters,

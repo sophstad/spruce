@@ -20,6 +20,8 @@ export { useTaskStatuses } from "./useTaskStatuses";
 export { useUpsertQueryParams } from "./useUpsertQueryParams";
 export { useSpruceConfig } from "./useSpruceConfig";
 export { useUserSettings } from "./useUserSettings";
+export { useUserTimeZone } from "./useUserTimeZone";
 export { useDateFormat } from "./useDateFormat";
+export { useFirstDistro } from "./useFirstDistro";
 export { useBreadcrumbRoot } from "./useBreadcrumbRoot";
 export { useResize } from "./useResize";

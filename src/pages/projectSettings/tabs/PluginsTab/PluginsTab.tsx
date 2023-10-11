@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { ValidateProps } from "components/SpruceForm";
 import { ProjectSettingsTabRoutes } from "constants/routes";
+import { useSpruceConfig } from "hooks";
 import { BaseTab } from "../BaseTab";
 import { ProjectType } from "../utils";
 import { getFormSchema } from "./getFormSchema";
@@ -8,19 +9,22 @@ import { PluginsFormState, TabProps } from "./types";
 
 const tab = ProjectSettingsTabRoutes.Plugins;
 
-export const PluginsTab: React.VFC<TabProps> = ({
+export const PluginsTab: React.FC<TabProps> = ({
   projectData,
   projectType,
   repoData,
 }) => {
   const initialFormState = projectData || repoData;
+  const spruceConfig = useSpruceConfig();
+  const jiraEmail = spruceConfig?.jira?.email;
 
   const formSchema = useMemo(
     () =>
       getFormSchema(
+        jiraEmail,
         projectType === ProjectType.AttachedProject ? repoData : null
       ),
-    [projectType, repoData]
+    [jiraEmail, projectType, repoData]
   );
 
   return (

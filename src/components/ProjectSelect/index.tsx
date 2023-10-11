@@ -8,7 +8,7 @@ import {
   ViewableProjectRefsQuery,
   ViewableProjectRefsQueryVariables,
 } from "gql/generated/types";
-import { GET_PROJECTS, GET_VIEWABLE_PROJECTS } from "gql/queries";
+import { PROJECTS, VIEWABLE_PROJECTS } from "gql/queries";
 import { Unpacked } from "types/utils";
 import { ProjectOptionGroup } from "./ProjectOptionGroup";
 
@@ -20,7 +20,7 @@ interface ProjectSelectProps {
   showLabel?: boolean;
 }
 
-export const ProjectSelect: React.VFC<ProjectSelectProps> = ({
+export const ProjectSelect: React.FC<ProjectSelectProps> = ({
   getRoute,
   isProjectSettingsPage = false,
   onSubmit = () => {},
@@ -32,13 +32,13 @@ export const ProjectSelect: React.VFC<ProjectSelectProps> = ({
   const { data: projectsData, loading: projectsLoading } = useQuery<
     ProjectsQuery,
     ProjectsQueryVariables
-  >(GET_PROJECTS, {
+  >(PROJECTS, {
     skip: isProjectSettingsPage,
   });
 
   const { data: viewableProjectsData, loading: viewableProjectsLoading } =
     useQuery<ViewableProjectRefsQuery, ViewableProjectRefsQueryVariables>(
-      GET_VIEWABLE_PROJECTS,
+      VIEWABLE_PROJECTS,
       {
         skip: !isProjectSettingsPage,
       }

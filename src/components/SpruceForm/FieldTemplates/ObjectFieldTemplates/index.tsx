@@ -72,7 +72,7 @@ export const ObjectFieldTemplate = ({
  * @param props.registry - registry
  * @returns JSX.Element
  */
-export const CardFieldTemplate: React.VFC<ObjectFieldTemplateProps> = ({
+export const CardFieldTemplate: React.FC<ObjectFieldTemplateProps> = ({
   idSchema,
   properties,
   registry,
@@ -119,7 +119,7 @@ export const CardFieldTemplate: React.VFC<ObjectFieldTemplateProps> = ({
  * @param props.readonly - readonly property // jsdoc/valid-types is disabled for this file due to // https://github.com/jsdoc-type-pratt-parser/jsdoc-type-pratt-parser/issues/104
  * @returns JSX.Element
  */
-export const AccordionFieldTemplate: React.VFC<ObjectFieldTemplateProps> = ({
+export const AccordionFieldTemplate: React.FC<ObjectFieldTemplateProps> = ({
   disabled,
   idSchema,
   properties,
@@ -154,7 +154,7 @@ export const AccordionFieldTemplate: React.VFC<ObjectFieldTemplateProps> = ({
  * @param props.uiSchema - uiSchema
  * @returns JSX.Element
  */
-export const FieldRow: React.VFC<
+export const FieldRow: React.FC<
   Pick<ObjectFieldTemplateProps, "formData" | "properties" | "uiSchema">
 > = ({ formData, properties, uiSchema }) => {
   const dataCy = uiSchema?.["ui:data-cy"];

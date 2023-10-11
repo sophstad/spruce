@@ -1,41 +1,40 @@
 import { MockedProvider } from "@apollo/client/testing";
+import { RenderFakeToastContext } from "context/toast/__mocks__";
 import {
   BaseVersionAndTaskQuery,
   BaseVersionAndTaskQueryVariables,
   LastMainlineCommitQuery,
   LastMainlineCommitQueryVariables,
 } from "gql/generated/types";
-import {
-  GET_BASE_VERSION_AND_TASK,
-  GET_LAST_MAINLINE_COMMIT,
-} from "gql/queries";
+import { BASE_VERSION_AND_TASK, LAST_MAINLINE_COMMIT } from "gql/queries";
 import { renderWithRouterMatch, screen, userEvent, waitFor } from "test_utils";
 import { ApolloMock } from "types/gql";
-import { PreviousCommits } from "./PreviousCommits";
+import { PreviousCommits } from ".";
 
-const goButton = "previous-commits-go-button";
-const selectLabel = "Previous commits for this task";
+const goButton = { name: "Go" };
+const select = { name: "Previous commits for this task" };
 
 describe("previous commits", () => {
   // Patch and mainline commit behavior only have a significant difference when it comes to determining
-  // the base or previous task. Patch gets the base task directly from GET_BASE_VERSION_AND_TASK, while
-  // mainline commits needs to run another query GET_LAST_MAINLINE_COMMIT to get previous task.
+  // the base or previous task. Patch gets the base task directly from BASE_VERSION_AND_TASK, while
+  // mainline commits needs to run another query LAST_MAINLINE_COMMIT to get previous task.
   describe("patch specific", () => {
     it("the GO button is disabled when there is no base task", async () => {
-      renderWithRouterMatch(
+      const { Component } = RenderFakeToastContext(
         <MockedProvider mocks={[getPatchTaskWithNoBaseTask]}>
           <PreviousCommits taskId="t1" />
         </MockedProvider>
       );
+      renderWithRouterMatch(<Component />);
       await waitFor(() => {
-        expect(screen.getByDataCy(goButton)).toHaveAttribute(
+        expect(screen.getByRole("link", goButton)).toHaveAttribute(
           "aria-disabled",
           "true"
         );
       });
       // Select won't be disabled because baseVersion exists
       await waitFor(() => {
-        expect(screen.getByLabelText(selectLabel)).toHaveAttribute(
+        expect(screen.getByRole("button", select)).toHaveAttribute(
           "aria-disabled",
           "false"
         );
@@ -47,22 +46,24 @@ describe("previous commits", () => {
 
   describe("mainline commits specific", () => {
     it("the GO button is disabled when getParentTask returns null", async () => {
-      renderWithRouterMatch(
+      const { Component } = RenderFakeToastContext(
         <MockedProvider
           mocks={[getMainlineTaskWithBaseVersion, getNullParentTask]}
         >
           <PreviousCommits taskId="t4" />
         </MockedProvider>
       );
+      renderWithRouterMatch(<Component />);
+
       await waitFor(() => {
-        expect(screen.getByDataCy(goButton)).toHaveAttribute(
+        expect(screen.getByRole("link", goButton)).toHaveAttribute(
           "aria-disabled",
           "true"
         );
       });
       // Select won't be disabled because baseVersion exists
       await waitFor(() => {
-        expect(screen.getByLabelText(selectLabel)).toHaveAttribute(
+        expect(screen.getByRole("button", select)).toHaveAttribute(
           "aria-disabled",
           "false"
         );
@@ -72,22 +73,24 @@ describe("previous commits", () => {
     });
 
     it("the GO button is disabled when getParentTask returns an error", async () => {
-      renderWithRouterMatch(
+      const { Component } = RenderFakeToastContext(
         <MockedProvider
           mocks={[getMainlineTaskWithBaseVersion, getParentTaskWithError]}
         >
           <PreviousCommits taskId="t4" />
         </MockedProvider>
       );
+      renderWithRouterMatch(<Component />);
+
       await waitFor(() => {
-        expect(screen.getByDataCy(goButton)).toHaveAttribute(
+        expect(screen.getByRole("link", goButton)).toHaveAttribute(
           "aria-disabled",
           "true"
         );
       });
       // Select won't be disabled because baseVersion exists
       await waitFor(() => {
-        expect(screen.getByLabelText(selectLabel)).toHaveAttribute(
+        expect(screen.getByRole("button", select)).toHaveAttribute(
           "aria-disabled",
           "false"
         );
@@ -98,19 +101,21 @@ describe("previous commits", () => {
   });
 
   it("the select & GO button are disabled when no base version exists", async () => {
-    renderWithRouterMatch(
+    const { Component } = RenderFakeToastContext(
       <MockedProvider mocks={[getPatchTaskWithNoBaseVersion]}>
         <PreviousCommits taskId="t3" />
       </MockedProvider>
     );
+    renderWithRouterMatch(<Component />);
+
     await waitFor(() => {
-      expect(screen.getByDataCy(goButton)).toHaveAttribute(
+      expect(screen.getByRole("link", goButton)).toHaveAttribute(
         "aria-disabled",
         "true"
       );
     });
     await waitFor(() => {
-      expect(screen.getByLabelText(selectLabel)).toHaveAttribute(
+      expect(screen.getByRole("button", select)).toHaveAttribute(
         "aria-disabled",
         "true"
       );
@@ -118,63 +123,69 @@ describe("previous commits", () => {
   });
 
   it("when base task is passing, all dropdown items generate the same link.", async () => {
-    renderWithRouterMatch(
+    const user = userEvent.setup();
+    const { Component } = RenderFakeToastContext(
       <MockedProvider mocks={[getPatchTaskWithSuccessfulBaseTask]}>
         <PreviousCommits taskId="t1" />
       </MockedProvider>
     );
+    renderWithRouterMatch(<Component />);
 
     await waitFor(() => {
-      expect(screen.getByDataCy(goButton)).toHaveAttribute(
+      expect(screen.getByRole("link", goButton)).toHaveAttribute(
         "href",
         baseTaskHref
       );
     });
-    userEvent.click(screen.getByText("Go to base commit"));
-    userEvent.click(screen.getByText("Go to last passing version"));
-    await waitFor(() => {
-      expect(screen.getByDataCy(goButton)).toHaveAttribute(
-        "href",
-        baseTaskHref
-      );
-    });
-    userEvent.click(screen.getAllByText("Go to last passing version")[0]);
-    userEvent.click(screen.getByText("Go to last executed version"));
-    await waitFor(() => {
-      expect(screen.getByDataCy(goButton)).toHaveAttribute(
-        "href",
-        baseTaskHref
-      );
-    });
+    await user.click(screen.getByRole("button", select));
+    await user.click(
+      screen.getByRole("option", { name: "Go to last passing version" })
+    );
+    expect(screen.getByRole("link", goButton)).toHaveAttribute(
+      "href",
+      baseTaskHref
+    );
+    await user.click(screen.getByRole("button", select));
+    await user.click(
+      screen.getByRole("option", { name: "Go to last executed version" })
+    );
+    expect(screen.getByRole("link", goButton)).toHaveAttribute(
+      "href",
+      baseTaskHref
+    );
   });
 
   it("when base task is failing, 'Go to base commit' and 'Go to last executed' dropdown items generate the same link and 'Go to last passing version' will be different.", async () => {
-    renderWithRouterMatch(
+    const user = userEvent.setup();
+    const { Component } = RenderFakeToastContext(
       <MockedProvider
         mocks={[getPatchTaskWithFailingBaseTask, getLastPassingVersion]}
       >
         <PreviousCommits taskId="t1" />
       </MockedProvider>
     );
+    renderWithRouterMatch(<Component />);
 
     await waitFor(() => {
-      expect(screen.getByDataCy(goButton)).toHaveAttribute(
+      expect(screen.getByRole("link", goButton)).toHaveAttribute(
         "href",
         baseTaskHref
       );
     });
-    userEvent.click(screen.getByText("Go to base commit"));
-    userEvent.click(screen.getByText("Go to last executed version"));
+    await user.click(screen.getByRole("button", select));
+    await user.click(
+      screen.getByRole("option", { name: "Go to last executed version" })
+    );
+    expect(screen.getByRole("link", goButton)).toHaveAttribute(
+      "href",
+      baseTaskHref
+    );
+    await user.click(screen.getByRole("button", select));
+    await user.click(
+      screen.getByRole("option", { name: "Go to last passing version" })
+    );
     await waitFor(() => {
-      expect(screen.getByDataCy(goButton)).toHaveAttribute(
-        "href",
-        baseTaskHref
-      );
-    });
-    userEvent.click(screen.getAllByText("Go to last executed version")[0]);
-    userEvent.click(screen.getByText("Go to last passing version"));
-    await waitFor(() => {
-      expect(screen.getByDataCy(goButton)).toHaveAttribute(
+      expect(screen.getByRole("link", goButton)).toHaveAttribute(
         "href",
         "/task/last_passing_task"
       );
@@ -182,7 +193,8 @@ describe("previous commits", () => {
   });
 
   it("when base task is not in a finished state, the last executed & passing task is not the same as the base commit", async () => {
-    renderWithRouterMatch(
+    const user = userEvent.setup();
+    const { Component } = RenderFakeToastContext(
       <MockedProvider
         mocks={[
           getPatchTaskWithRunningBaseTask,
@@ -193,29 +205,30 @@ describe("previous commits", () => {
         <PreviousCommits taskId="t3" />
       </MockedProvider>
     );
+    renderWithRouterMatch(<Component />);
 
     await waitFor(() => {
-      expect(screen.getByDataCy(goButton)).toHaveAttribute(
+      expect(screen.getByRole("link", goButton)).toHaveAttribute(
         "href",
         baseTaskHref
       );
     });
-    userEvent.click(screen.getByText("Go to base commit"));
-    userEvent.click(screen.getByText("Go to last executed version"));
-    await waitFor(() => {
-      expect(screen.getByDataCy(goButton)).toHaveAttribute(
-        "href",
-        "/task/last_executed_task"
-      );
-    });
-    userEvent.click(screen.getAllByText("Go to last executed version")[0]);
-    userEvent.click(screen.getByText("Go to last passing version"));
-    await waitFor(() => {
-      expect(screen.getByDataCy(goButton)).toHaveAttribute(
-        "href",
-        "/task/last_passing_task"
-      );
-    });
+    await user.click(screen.getByRole("button", select));
+    await user.click(
+      screen.getByRole("option", { name: "Go to last executed version" })
+    );
+    expect(screen.getByRole("link", goButton)).toHaveAttribute(
+      "href",
+      "/task/last_executed_task"
+    );
+    await user.click(screen.getByRole("button", select));
+    await user.click(
+      screen.getByRole("option", { name: "Go to last passing version" })
+    );
+    expect(screen.getByRole("link", goButton)).toHaveAttribute(
+      "href",
+      "/task/last_passing_task"
+    );
   });
 });
 
@@ -228,7 +241,7 @@ const getPatchTaskWithSuccessfulBaseTask: ApolloMock<
   BaseVersionAndTaskQueryVariables
 > = {
   request: {
-    query: GET_BASE_VERSION_AND_TASK,
+    query: BASE_VERSION_AND_TASK,
     variables: {
       taskId: "t1",
     },
@@ -268,7 +281,7 @@ const getPatchTaskWithRunningBaseTask: ApolloMock<
   BaseVersionAndTaskQueryVariables
 > = {
   request: {
-    query: GET_BASE_VERSION_AND_TASK,
+    query: BASE_VERSION_AND_TASK,
     variables: {
       taskId: "t3",
     },
@@ -308,7 +321,7 @@ const getPatchTaskWithFailingBaseTask: ApolloMock<
   BaseVersionAndTaskQueryVariables
 > = {
   request: {
-    query: GET_BASE_VERSION_AND_TASK,
+    query: BASE_VERSION_AND_TASK,
     variables: {
       taskId: "t1",
     },
@@ -348,7 +361,7 @@ const getPatchTaskWithNoBaseVersion: ApolloMock<
   BaseVersionAndTaskQueryVariables
 > = {
   request: {
-    query: GET_BASE_VERSION_AND_TASK,
+    query: BASE_VERSION_AND_TASK,
     variables: {
       taskId: "t3",
     },
@@ -378,7 +391,7 @@ const getLastPassingVersion: ApolloMock<
   LastMainlineCommitQueryVariables
 > = {
   request: {
-    query: GET_LAST_MAINLINE_COMMIT,
+    query: LAST_MAINLINE_COMMIT,
     variables: {
       projectIdentifier: "evergreen",
       skipOrderNumber: 3676,
@@ -425,7 +438,7 @@ const getLastExecutedVersion: ApolloMock<
   LastMainlineCommitQueryVariables
 > = {
   request: {
-    query: GET_LAST_MAINLINE_COMMIT,
+    query: LAST_MAINLINE_COMMIT,
     variables: {
       projectIdentifier: "evergreen",
       skipOrderNumber: 3676,
@@ -483,7 +496,7 @@ const getPatchTaskWithNoBaseTask: ApolloMock<
   BaseVersionAndTaskQueryVariables
 > = {
   request: {
-    query: GET_BASE_VERSION_AND_TASK,
+    query: BASE_VERSION_AND_TASK,
     variables: {
       taskId: "t1",
     },
@@ -519,7 +532,7 @@ const getMainlineTaskWithBaseVersion: ApolloMock<
   BaseVersionAndTaskQueryVariables
 > = {
   request: {
-    query: GET_BASE_VERSION_AND_TASK,
+    query: BASE_VERSION_AND_TASK,
     variables: {
       taskId: "t4",
     },
@@ -554,7 +567,7 @@ const getNullParentTask: ApolloMock<
   LastMainlineCommitQueryVariables
 > = {
   request: {
-    query: GET_LAST_MAINLINE_COMMIT,
+    query: LAST_MAINLINE_COMMIT,
     variables: {
       projectIdentifier: "evergreen",
       skipOrderNumber: 3676,
@@ -573,7 +586,7 @@ const getParentTaskWithError: ApolloMock<
   LastMainlineCommitQueryVariables
 > = {
   request: {
-    query: GET_LAST_MAINLINE_COMMIT,
+    query: LAST_MAINLINE_COMMIT,
     variables: {
       projectIdentifier: "evergreen",
       skipOrderNumber: 3676,

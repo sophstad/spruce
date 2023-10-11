@@ -95,6 +95,10 @@ export const getFormSchema = (
               title: "Alias",
               default: "",
             },
+            unscheduleDownstreamVersions: {
+              type: "boolean" as "boolean",
+              title: "Unschedule Downstream Versions",
+            },
           },
         },
       }
@@ -115,6 +119,7 @@ export const getFormSchema = (
       "ui:useExpandableCard": true,
       items: {
         "ui:displayTitle": "New Project Trigger",
+        "ui:label": false,
         project: {
           "ui:data-cy": "project-input",
         },
@@ -147,6 +152,12 @@ export const getFormSchema = (
           "ui:description":
             "Patch alias to filter variants/tasks in this project.",
           "ui:optional": true,
+        },
+        unscheduleDownstreamVersions: {
+          "ui:description":
+            "Downstream versions created by this trigger will be deactivated by default",
+          "ui:optional": true,
+          "ui:bold": true,
         },
       },
     },

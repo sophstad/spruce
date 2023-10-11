@@ -462,6 +462,7 @@ export const getEventSchema = (
       "ui:addButtonText": "Add Additional Criteria",
       items: {
         "ui:ObjectFieldTemplate": RegexSelectorRow,
+        "ui:label": false,
         regexSelect: {
           "ui:data-cy": "regex-select",
           "ui:enumDisabled": regexEnumsToDisable,

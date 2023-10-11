@@ -1,5 +1,4 @@
 import { createContext, useContext, useMemo, useReducer } from "react";
-import axios from "axios";
 import { environmentVariables } from "utils";
 import { leaveBreadcrumb } from "utils/errorReporting";
 
@@ -33,7 +32,7 @@ const reducer = (state: AuthState, action: Action): AuthState => {
 const AuthDispatchContext = createContext<DispatchContext | null>(null);
 const AuthStateContext = createContext<AuthState | null>(null);
 
-const AuthProvider: React.VFC<{ children: React.ReactNode }> = ({
+const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(reducer, {
@@ -44,25 +43,31 @@ const AuthProvider: React.VFC<{ children: React.ReactNode }> = ({
     () => ({
       // This function is only used in local development.
       devLogin: async ({ password, username }) => {
-        await axios
-          .post(
-            `${getUiUrl()}/login`,
-            { username, password },
-            { withCredentials: true }
-          )
-          .then((response) => {
-            if (response.status === 200) {
-              dispatch({ type: "authenticated" });
-            }
-          });
+        await fetch(`${getUiUrl()}/login`, {
+          body: JSON.stringify({ password, username }),
+          credentials: "include",
+          method: "POST",
+        }).then((response) => {
+          if (response.ok) {
+            dispatch({ type: "authenticated" });
+          } else {
+            dispatch({ type: "deauthenticated" });
+          }
+        });
       },
       logoutAndRedirect: async () => {
-        // attempt log out and redirect to login page
-        try {
-          await axios.get(`${getUiUrl()}/logout`);
-        } catch {}
-        dispatch({ type: "deauthenticated" });
-        window.location.href = `${getLoginDomain()}/login`;
+        await fetch(`${getUiUrl()}/logout`, {
+          credentials: "include",
+          method: "GET",
+          redirect: "manual",
+        })
+          .then(() => {
+            dispatch({ type: "deauthenticated" });
+            window.location.href = `${getLoginDomain()}/login`;
+          })
+          .catch((error) => {
+            leaveBreadcrumb("Logout failed", { error }, "user");
+          });
       },
       dispatchAuthenticated: () => {
         if (!state.isAuthenticated) {
@@ -85,7 +90,7 @@ const AuthProvider: React.VFC<{ children: React.ReactNode }> = ({
 
 const useAuthStateContext = (): AuthState => {
   const authState = useContext(AuthStateContext);
-  if (authState === undefined) {
+  if (authState === null || authState === undefined) {
     throw new Error(
       "useAuthStateContext must be used within an auth context provider"
     );
@@ -95,9 +100,9 @@ const useAuthStateContext = (): AuthState => {
 
 const useAuthDispatchContext = (): DispatchContext => {
   const authDispatch = useContext(AuthDispatchContext);
-  if (authDispatch === undefined) {
+  if (authDispatch === null || authDispatch === undefined) {
     throw new Error(
-      "useAuthStateContext must be used within an auth context provider"
+      "useAuthDispatchContext must be used within an auth context provider"
     );
   }
   return authDispatch;

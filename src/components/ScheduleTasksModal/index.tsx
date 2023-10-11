@@ -15,7 +15,7 @@ import {
   ScheduleTasksMutationVariables,
 } from "gql/generated/types";
 import { SCHEDULE_TASKS } from "gql/mutations";
-import { GET_UNSCHEDULED_TASKS } from "gql/queries";
+import { UNSCHEDULED_TASKS } from "gql/queries";
 import { initialState, reducer } from "./reducer";
 
 interface ScheduleTasksModalProps {
@@ -23,7 +23,7 @@ interface ScheduleTasksModalProps {
   setOpen: (open: boolean) => void;
   versionId: string;
 }
-export const ScheduleTasksModal: React.VFC<ScheduleTasksModalProps> = ({
+export const ScheduleTasksModal: React.FC<ScheduleTasksModalProps> = ({
   open,
   setOpen,
   versionId,
@@ -56,7 +56,7 @@ export const ScheduleTasksModal: React.VFC<ScheduleTasksModalProps> = ({
     loadTaskData,
     { called: calledTaskData, data: taskData, loading: loadingTaskData },
   ] = useLazyQuery<UndispatchedTasksQuery, UndispatchedTasksQueryVariables>(
-    GET_UNSCHEDULED_TASKS,
+    UNSCHEDULED_TASKS,
     {
       variables: { versionId },
     }
